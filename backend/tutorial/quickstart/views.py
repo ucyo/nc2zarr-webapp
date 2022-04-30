@@ -104,7 +104,8 @@ def api_json_workflow(request):
     Generate JSON meta files.
     """
     pathlib.Path(request.data['output']).mkdir(exist_ok=True)
-    queue = Queue(connection=open_redis_connection())
+    redis = open_redis_connection()
+    queue = Queue(connection=redis)
 
     json_workflow = JsonWorkflow(name=request.data['name'], created_at=timezone.now())
     json_workflow.save()
@@ -114,10 +115,13 @@ def api_json_workflow(request):
         relative_output_path = os.path.relpath(request.data['output'], os.environ['NC2ZARR_OUTPUT'])
 
         file_name = os.path.basename(absolute_path)
-        job = queue.enqueue("worker.json_workflow.json_converter.gen_json",
-                            relative_input_path,
-                            relative_output_path,
-                            file_name)
+
+        job = Job.create("worker.json_workflow.json_converter.gen_json",
+                         args=(relative_input_path, relative_output_path, file_name),
+                         result_ttl=None,
+                         failure_ttl=None,
+                         connection=redis)
+        queue.enqueue_job(job)
 
         json_workflow_job = JsonWorkflowJob(job_id=job.id,
                                             file_name=file_name,
