@@ -1,0 +1,12 @@
+
+<nav class="navbar navbar-expand-xl">
+  <div class="collapse navbar-collapse justify-content-center">
+    <div class="navbar-nav">
+      <a *ngFor="let navigationEntry of navigationEntries"
+         class="nav-item nav-link"
+         routerLink="{{navigationEntry.routerLink}}"
+         routerLinkActive="active"
+         #navbarlink>{{navigationEntry.displayName}}</a>
+    </div>
+  </div>
+</nav>

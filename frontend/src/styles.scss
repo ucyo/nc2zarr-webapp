@@ -1,0 +1,24 @@
+@import "./variables";
+@import "../node_modules/bootstrap/scss/functions";
+@import "../node_modules/bootstrap/scss/mixins";
+@import "../node_modules/bootstrap/scss/bootstrap";
+@import '~ngx-toastr/toastr';
+@import '~ngx-toastr/toastr-bs4-alert';
+
+fa-icon {
+  cursor: pointer;
+  color: rgba(0,0,0,0.7);
+  margin-right: 6px;
+}
+
+fa-icon:hover {
+  color: black;
+}
+
+.overflow-auto {
+  max-height: 500px;
+}
+
+.toast-success {
+  color: black!important;
+}

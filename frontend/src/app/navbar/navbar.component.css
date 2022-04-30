@@ -1,0 +1,132 @@
+#desktop-brand {
+  width: 200px;
+  height: auto;
+}
+
+.navbar {
+  display: none;
+}
+
+.nav-item, .mobile-nav-item {
+  text-align: center;
+  padding: 20px 10px 10px 10px !important;
+  margin: 0 10px 10px 10px;
+  font-family: sans-serif;
+  letter-spacing: 2px;
+  opacity: 0.8;
+  border-bottom: 2px solid rgba(0, 0, 0, 0);
+}
+
+.nav-item:hover, .selected-nav-item {
+  opacity: 1;
+}
+
+fa-icon {
+  font-size: 28px;
+}
+
+@media only screen and (min-width: 600px) {
+  #navbar-toggler-container, #navbar-close-container {
+    top: 5vh !important;
+    right: 7vw !important;
+    width: 10vw !important;
+    height: 10vw !important;
+  }
+  #navbar-toggler-container fa-icon, #navbar-close-container fa-icon {
+    font-size: 5vw !important;
+  }
+}
+#navbar-toggler-container, #navbar-close-container {
+  top: 5vh;
+  right: 8vw;
+  width: 16vw;
+  height: 16vw;
+  position: fixed;
+  z-index: 21;
+  background: red;
+  -webkit-box-shadow: 0 0 6px 3px rgba(0, 0, 0, 0.75);
+  -moz-box-shadow: 0 0 6px 3px rgba(0, 0, 0, 0.75);
+  box-shadow: 0 0 6px 3px rgba(0, 0, 0, 0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+#navbar-toggler-container .navbar-toggler, #navbar-close-container .navbar-toggler {
+  border: none;
+  color: white;
+}
+#navbar-toggler-container .navbar-toggler fa-icon, #navbar-close-container .navbar-toggler fa-icon {
+  font-size: 7vw;
+}
+
+#mobile-navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  margin-bottom: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 20;
+  cursor: pointer;
+}
+#mobile-navbar #center-mobile-navigation {
+  display: flex;
+  height: 100%;
+}
+#mobile-navbar .mobile-nav-item {
+  opacity: 1;
+  font-size: 5vw;
+  color: white;
+  padding-left: 5vw !important;
+  padding-top: 5vh !important;
+}
+#mobile-navbar .mobile-nav-item:first-child {
+  padding-top: 7vh !important;
+}
+#mobile-navbar .mobile-nav-item:last-child {
+  padding-bottom: 5vh !important;
+}
+
+@media only screen and (min-width: 1200px) {
+  #navbar-toggler-container, #navbar-close-container {
+    display: none;
+  }
+
+  .navbar {
+    display: flex;
+  }
+}
+nav {
+  margin-bottom: 50px;
+  background-color: black;
+}
+
+@media only screen and (min-width: 1200px) {
+  .nav-item:hover, .selected-nav-item {
+    border-bottom: 2px solid white;
+    color: white !important;
+  }
+}
+@media only screen and (min-width: 450px) {
+  #desktop-brand {
+    width: 330px;
+  }
+}
+@media only screen and (min-width: 992px) and (max-width: 1500px) {
+  #desktop-brand {
+    width: 200px;
+  }
+}
+#brand-container {
+  text-align: center;
+  width: 100%;
+  padding-top: 5vh;
+  padding-bottom: 5vh;
+}
+#brand-container img {
+  width: auto;
+  height: 300px;
+}
+
+/*# sourceMappingURL=navbar.component.css.map */

@@ -1,0 +1,109 @@
+<h1>JSON Workflow</h1>
+
+<p>This workflow generates Zarr JSON meta files for NetCDF files. More information about the process or how the JSON
+  files can be utilized can be found in the article
+  <a target="_blank"
+     href="https://medium.com/pangeo/fake-it-until-you-make-it-reading-goes-netcdf4-data-on-aws-s3-as-zarr-for-rapid-data-access-61e33f8fe685"
+     title="Fake it until you make it — Reading GOES NetCDF4 data on AWS S3 as Zarr for rapid data access">
+    Reading NetCDF4 data as Zarr for rapid data access</a>.
+</p>
+
+<h2>Overview</h2>
+
+<div class="overflow-auto">
+  <table class="table">
+    <thead>
+    <tr>
+      <th scope="col">Name</th>
+      <th scope="col">ID</th>
+      <th scope="col">Status</th>
+      <th scope="col">Jobs</th>
+      <th scope="col">Created at</th>
+      <th></th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr *ngFor="let jsonWorkflow of jsonWorkflows">
+      <th scope="row">{{jsonWorkflow.name}}</th>
+      <td>{{jsonWorkflow.id}}</td>
+      <td>{{jsonWorkflow.status}}</td>
+      <td>{{getJobCount(jsonWorkflow)}}</td>
+      <td>{{jsonWorkflow.created_at | date:'long'}}</td>
+      <td>
+        <fa-icon [icon]="faSearch" (click)="jsonWorkflowJobs = jsonWorkflow.jobs"></fa-icon>
+        <fa-icon [icon]="faTrash" (click)="deleteJsonWorkflow(jsonWorkflow.id)"></fa-icon>
+      </td>
+    </tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="overflow-auto" *ngIf="jsonWorkflowJobs && jsonWorkflowJobs.length > 0">
+  <table class="table">
+    <thead>
+    <tr>
+      <th scope="col">Name</th>
+      <th scope="col">ID</th>
+      <th scope="col">Job ID</th>
+      <th scope="col">Status</th>
+      <th scope="col">Created at</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr *ngFor="let jsonWorkflowJob of jsonWorkflowJobs">
+      <td>{{jsonWorkflowJob.file_name}}</td>
+      <td>{{jsonWorkflowJob.id}}</td>
+      <td>{{jsonWorkflowJob.job_id}}</td>
+      <td>{{jsonWorkflowJob.status}}</td>
+      <td>{{jsonWorkflowJob.created_at | date:'long'}}</td>
+    </tr>
+    </tbody>
+  </table>
+</div>
+
+<!--<h2>Tutorial</h2>-->
+
+<!--<h3>Step 1</h3>-->
+
+<!--<p>Select at least one NetCDF file on the left.</p>-->
+
+<!--<h3>Step 2</h3>-->
+
+<!--<p>Select an output directory on the right.</p>-->
+
+<!--<h3>Step 3</h3>-->
+
+<!--<p>Press the convert button!</p>-->
+
+<div class="row">
+  <div class="col-6">
+    <ngx-treeview
+      [config]="config"
+      [items]="inputItems"
+      (selectedChange)="onSelectedChangeForInput($event)"
+    >
+    </ngx-treeview>
+  </div>
+  <div class="col-6">
+    <ngx-treeview
+      [config]="config"
+      [items]="outputItems"
+      (selectedChange)="onSelectedChangeForOutput($event)"
+    >
+    </ngx-treeview>
+  </div>
+</div>
+
+<form>
+  <div class="form-group">
+    <label for="name">JSON workflow name:</label>
+    <input class="form-control" id="name" placeholder="Enter name" [(ngModel)]="jsonWorkflowName"
+           (ngModelChange)="checkIfConvertButtonCanBeActivated()">
+  </div>
+</form>
+
+<button type="button" class="btn btn-primary" [disabled]="!conversionAllowed" (click)="convert()">
+  Convert
+</button>
+
+

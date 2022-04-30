@@ -1,0 +1,25 @@
+version: "3.8"
+
+services:
+
+  rq-dashboard:
+    ports:
+      - "9181:9181"
+
+  redis:
+    volumes:
+      - ./redis:/data
+    ports:
+      - "6379:6379"
+
+  worker:
+    volumes:
+      - ./backend:/home/python/code
+      - ./input:/home/python/input
+      - ./output:/home/python/output
+    scale: 4
+
+  django:
+    volumes:
+      - ./input:/input
+      - ./output:/output

@@ -1,0 +1,54 @@
+version: "3.8"
+
+services:
+
+  redis:
+    image: redis:5
+    init: true
+
+  rq-dashboard:
+    image: ucyo/rq-dashboard:latest
+    init: true
+    env_file:
+      - ./env/.rq.env
+    depends_on:
+      - redis
+      - worker
+
+  worker:
+    init: true
+    image: worker-image
+    build:
+      context: ./backend/worker
+      dockerfile: Dockerfile
+    env_file:
+      - ./env/.rq.env
+    command: /bin/bash -c "wait-for-it -s -t 60 redis:6379 && rq worker --url redis://redis:6379"
+    depends_on:
+      - redis
+
+  rebrow:
+    image: marian/rebrow
+    init: true
+    ports:
+      - "5001:5001"
+
+  django:
+    build: ./backend
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - ./backend:/code
+    ports:
+      - "8000:8000"
+    environment:
+      - NC2ZARR_PROD=True
+      - NC2ZARR_INPUT=/input
+      - NC2ZARR_OUTPUT=/output
+    depends_on:
+      - redis
+      - worker
+
+  angular-frontend:
+    build: ./frontend
+    ports:
+      - "80:80"
