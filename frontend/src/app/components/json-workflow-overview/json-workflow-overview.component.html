@@ -1,0 +1,97 @@
+<h2>Overview
+  <button (click)="refresh()" type="button" class="btn btn-dark float-right">
+    Refresh
+  </button>
+</h2>
+
+<div class="overflow-auto table-responsive">
+  <table class="table">
+    <thead>
+    <tr>
+      <th scope="col">Name</th>
+      <th scope="col">ID</th>
+      <th scope="col">Status</th>
+      <th scope="col">Jobs</th>
+      <th scope="col">Created at</th>
+      <th></th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr *ngFor="let jsonWorkflow of jsonWorkflows"
+        [class.table-success]="jsonWorkflow.status === 'finished'"
+        [class.table-danger]="jsonWorkflow.status === 'failed'">
+      <th scope="row">{{jsonWorkflow.name}}</th>
+      <td>{{jsonWorkflow.id}}</td>
+      <td>{{jsonWorkflow.status}}</td>
+      <td>{{getJobCount(jsonWorkflow)}}</td>
+      <td>{{jsonWorkflow.created_at | date:'short'}}</td>
+      <td>
+        <fa-icon [icon]="faSearch"
+                 (click)="selectedJsonWorkflow = jsonWorkflow; jsonWorkflowJobs = jsonWorkflow.jobs; failedJob = null"></fa-icon>
+        <fa-icon [icon]="faTrash" (click)="deleteJsonWorkflow(jsonWorkflow.id)"></fa-icon>
+      </td>
+    </tr>
+    </tbody>
+  </table>
+</div>
+
+<div *ngIf="jsonWorkflowJobs && jsonWorkflowJobs.length > 0">
+
+  <h4>JSON workflow - {{selectedJsonWorkflow.name}} ({{selectedJsonWorkflow.id}})
+
+    <button (click)="selectedJsonWorkflow = null; jsonWorkflowJobs = null; failedJob = null" type="button"
+            class="btn btn-dark float-right">
+      Close
+    </button>
+  </h4>
+
+  <div class="overflow-auto table-responsive">
+    <table class="table">
+      <thead>
+      <tr>
+        <th scope="col">Name</th>
+        <th scope="col">ID</th>
+        <th scope="col">Status</th>
+        <th scope="col">Job ID</th>
+        <th scope="col">Started at</th>
+        <th scope="col">Ended at</th>
+        <th scope="col">Created at</th>
+        <th></th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let jsonWorkflowJob of jsonWorkflowJobs"
+          [class.table-success]="jsonWorkflowJob.status === 'finished'"
+          [class.table-danger]="jsonWorkflowJob.status === 'failed'">
+        <td title="{{jsonWorkflowJob.file_name}}">{{jsonWorkflowJob.file_name | truncate:20}}</td>
+        <td>{{jsonWorkflowJob.id}}</td>
+        <td>{{jsonWorkflowJob.status}}</td>
+        <td title="{{jsonWorkflowJob.job_id}}">{{jsonWorkflowJob.job_id | truncate:6}}</td>
+        <td>{{jsonWorkflowJob.started_at | date:'short'}}</td>
+        <td>{{jsonWorkflowJob.ended_at | date:'short'}}</td>
+        <td>{{jsonWorkflowJob.created_at | date:'short'}}</td>
+        <td>
+          <fa-icon [icon]="faSearch" *ngIf="jsonWorkflowJob.status === 'failed'"
+                   (click)="failedJob = jsonWorkflowJob"></fa-icon>
+          <fa-icon [icon]="faUndo" *ngIf="jsonWorkflowJob.status === 'failed'"
+                   (click)="retry(jsonWorkflowJob.id)"></fa-icon>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+
+<div *ngIf="failedJob">
+  <h4>Job exception ({{failedJob.id}})
+    <button (click)="failedJob = null" type="button" class="btn btn-dark float-right">
+      Close
+    </button>
+  </h4>
+
+  <div class="overflow-auto" *ngIf="failedJob">
+    <pre><code>{{failedJob.exception}}</code></pre>
+  </div>
+</div>
+

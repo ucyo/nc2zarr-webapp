@@ -20,6 +20,9 @@ import {LoadingBarHttpClientModule} from '@ngx-loading-bar/http-client';
 import {registerLocaleData} from '@angular/common';
 import localeDe from '@angular/common/locales/de';
 import localeDeExtra from '@angular/common/locales/extra/de';
+import {JsonWorkflowOverviewComponent} from './components/json-workflow-overview/json-workflow-overview.component';
+import {JsonWorkflowCreateComponent} from './components/json-workflow-create/json-workflow-create.component';
+import {TruncatePipe} from './pipes/truncate-pipe/truncate.pipe';
 
 registerLocaleData(localeDe, localeDeExtra);
 
@@ -29,7 +32,10 @@ registerLocaleData(localeDe, localeDeExtra);
     NavbarComponent,
     StartPageComponent,
     JsonWorkflowComponent,
-    CompleteConversionComponent
+    CompleteConversionComponent,
+    JsonWorkflowOverviewComponent,
+    JsonWorkflowCreateComponent,
+    TruncatePipe
   ],
   imports: [
     BrowserModule,

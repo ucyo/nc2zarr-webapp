@@ -7,4 +7,6 @@ export interface JsonWorkflowJob {
   status: string;
   exception: string;
   created_at: Date;
+  ended_at: Date;
+  started_at: Date;
 }

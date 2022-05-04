@@ -11,7 +11,6 @@ export class NavigationEntry {
   static getAllNavigationEntries(): NavigationEntry[] {
 
     return [
-      new NavigationEntry('/', 'Home'),
       new NavigationEntry('/json-workflow', 'JSON Workflow'),
       new NavigationEntry('/complete-conversion', 'Complete Conversion'),
     ];

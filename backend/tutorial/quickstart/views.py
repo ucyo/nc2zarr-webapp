@@ -80,6 +80,8 @@ def process(json_workflow: JsonWorkflow, index: int, redis: Redis, json_workflow
         if job.job_id in job_dict:
             job.status = job_dict[job.job_id].get_status()
             job.exception = job_dict[job.job_id].exc_info
+            job.ended_at = job_dict[job.job_id].ended_at
+            job.started_at = job_dict[job.job_id].started_at
         else:
             job.status = "finished"
 

@@ -1,12 +1,22 @@
+<nav class="navbar navbar-expand-xl navbar-light bg-light">
 
-<nav class="navbar navbar-expand-xl">
-  <div class="collapse navbar-collapse justify-content-center">
-    <div class="navbar-nav">
-      <a *ngFor="let navigationEntry of navigationEntries"
-         class="nav-item nav-link"
-         routerLink="{{navigationEntry.routerLink}}"
-         routerLinkActive="active"
-         #navbarlink>{{navigationEntry.displayName}}</a>
-    </div>
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+          aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+  <div class="collapse navbar-collapse" id="navbarSupportedContent">
+    <ul class="navbar-nav mr-auto">
+      <li *ngFor="let navigationEntry of navigationEntries"
+          class="nav-item"
+          #navbarlink>
+        <a [class.active]="currentNavigationLink === navigationEntry.routerLink"
+           routerLink="{{navigationEntry.routerLink}}"
+           routerLinkActive="active"
+           class="nav-link">
+          {{navigationEntry.displayName}}
+        </a>
+      </li>
+    </ul>
   </div>
 </nav>

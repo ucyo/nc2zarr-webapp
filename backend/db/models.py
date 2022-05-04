@@ -13,6 +13,8 @@ class JsonWorkflowJob(models.Model):
     input = models.CharField(max_length=1000)
     output = models.CharField(max_length=1000)
     created_at = models.DateTimeField()
+    ended_at = models.DateTimeField(null=True)
+    started_at = models.DateTimeField(null=True)
     exception = models.CharField(null=True, max_length=10000)
     json_workflow = models.ForeignKey(JsonWorkflow, on_delete=models.CASCADE)
     status = models.CharField(null=True, max_length=30)

@@ -1,14 +1,13 @@
 import {NgModule} from '@angular/core';
 import {ActivatedRoute, NavigationEnd, Router, RouterModule, Routes} from '@angular/router';
-import {StartPageComponent} from './views/start-page/start-page.component';
 import {JsonWorkflowComponent} from './views/json-workflow/json-workflow.component';
 import {CompleteConversionComponent} from './views/complete-conversion/complete-conversion.component';
 
 const routes: Routes = [
   {
     path: '',
+    redirectTo: '/json-workflow',
     pathMatch: 'full',
-    component: StartPageComponent,
   },
   {
     path: 'json-workflow',

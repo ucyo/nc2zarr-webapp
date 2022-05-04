@@ -8,118 +8,17 @@
     Reading NetCDF4 data as Zarr for rapid data access</a>.
 </p>
 
-<h2>Overview</h2>
+<ul ngbNav #nav="ngbNav" class="nav-tabs">
+  <li ngbNavItem>
+    <a ngbNavLink>Overview</a>
+    <ng-template ngbNavContent><app-json-workflow-overview></app-json-workflow-overview></ng-template>
+  </li>
+  <li ngbNavItem>
+    <a ngbNavLink>New workflow</a>
+    <ng-template ngbNavContent><app-json-workflow-create></app-json-workflow-create></ng-template>
+  </li>
+</ul>
+<div [ngbNavOutlet]="nav" style="margin-bottom: 50px;"></div>
 
-<div class="overflow-auto">
-  <table class="table">
-    <thead>
-    <tr>
-      <th scope="col">Name</th>
-      <th scope="col">ID</th>
-      <th scope="col">Status</th>
-      <th scope="col">Jobs</th>
-      <th scope="col">Created at</th>
-      <th></th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr *ngFor="let jsonWorkflow of jsonWorkflows">
-      <th scope="row">{{jsonWorkflow.name}}</th>
-      <td>{{jsonWorkflow.id}}</td>
-      <td>{{jsonWorkflow.status}}</td>
-      <td>{{getJobCount(jsonWorkflow)}}</td>
-      <td>{{jsonWorkflow.created_at | date:'short'}}</td>
-      <td>
-        <fa-icon [icon]="faSearch"
-                 (click)="selectedJsonWorkflow = jsonWorkflow; jsonWorkflowJobs = jsonWorkflow.jobs; failedJob = null"></fa-icon>
-        <fa-icon [icon]="faTrash" (click)="deleteJsonWorkflow(jsonWorkflow.id)"></fa-icon>
-      </td>
-    </tr>
-    </tbody>
-  </table>
-</div>
-
-<h3 *ngIf="jsonWorkflowJobs && jsonWorkflowJobs.length > 0">Jobs of JSON workflow {{selectedJsonWorkflow.id}}</h3>
-
-<div class="overflow-auto" *ngIf="jsonWorkflowJobs && jsonWorkflowJobs.length > 0">
-  <table class="table">
-    <thead>
-    <tr>
-      <th scope="col">Name</th>
-      <th scope="col">ID</th>
-      <th scope="col">Status</th>
-      <th scope="col">Job ID</th>
-      <th scope="col">Created at</th>
-      <th></th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr *ngFor="let jsonWorkflowJob of jsonWorkflowJobs">
-      <td>{{jsonWorkflowJob.file_name}}</td>
-      <td>{{jsonWorkflowJob.id}}</td>
-      <td>{{jsonWorkflowJob.status}}</td>
-      <td>{{jsonWorkflowJob.job_id}}</td>
-      <td>{{jsonWorkflowJob.created_at | date:'short'}}</td>
-      <td>
-        <fa-icon [icon]="faSearch" *ngIf="jsonWorkflowJob.status === 'failed'"
-                 (click)="failedJob = jsonWorkflowJob"></fa-icon>
-        <fa-icon [icon]="faUndo" *ngIf="jsonWorkflowJob.status === 'failed'"
-                 (click)="retry(jsonWorkflowJob.id)"></fa-icon>
-      </td>
-    </tr>
-    </tbody>
-  </table>
-</div>
-
-<h3 *ngIf="failedJob">Exception of job {{failedJob.id}}</h3>
-
-<div class="overflow-auto" *ngIf="failedJob">
-  <pre><code>{{failedJob.exception}}</code></pre>
-</div>
-
-<!--<h2>Tutorial</h2>-->
-
-<!--<h3>Step 1</h3>-->
-
-<!--<p>Select at least one NetCDF file on the left.</p>-->
-
-<!--<h3>Step 2</h3>-->
-
-<!--<p>Select an output directory on the right.</p>-->
-
-<!--<h3>Step 3</h3>-->
-
-<!--<p>Press the convert button!</p>-->
-
-<div class="row">
-  <div class="col-6">
-    <ngx-treeview
-      [config]="config"
-      [items]="inputItems"
-      (selectedChange)="onSelectedChangeForInput($event)"
-    >
-    </ngx-treeview>
-  </div>
-  <div class="col-6">
-    <ngx-treeview
-      [config]="config"
-      [items]="outputItems"
-      (selectedChange)="onSelectedChangeForOutput($event)"
-    >
-    </ngx-treeview>
-  </div>
-</div>
-
-<form>
-  <div class="form-group">
-    <label for="name">JSON workflow name:</label>
-    <input class="form-control" id="name" placeholder="Enter name" [(ngModel)]="jsonWorkflowName"
-           (ngModelChange)="checkIfConvertButtonCanBeActivated()">
-  </div>
-</form>
-
-<button type="button" class="btn btn-primary" [disabled]="!conversionAllowed" (click)="convert()">
-  Convert
-</button>
 
 
