@@ -17,7 +17,8 @@ services:
       - ./backend:/home/python/code
       - ./input:/home/python/input
       - ./output:/home/python/output
-    scale: 4
+    deploy:
+      replicas: 4
 
   django:
     volumes:
