@@ -1,7 +1,6 @@
 import os
 import pathlib
 
-import netCDF4 as netCDF4
 from django.db.transaction import atomic
 from django.http import JsonResponse
 from django.utils import timezone
@@ -112,26 +111,54 @@ def api_json_workflow(request):
     json_workflow = JsonWorkflow(name=request.data['name'], created_at=timezone.now())
     json_workflow.save()
 
+    relative_input_paths_for_combine = []
+    relative_output_path = ''
+    jobs = []
+
     for absolute_path in request.data['input']:
         relative_input_path = os.path.relpath(absolute_path, os.environ['NC2ZARR_INPUT'])
         relative_output_path = os.path.relpath(request.data['output'], os.environ['NC2ZARR_OUTPUT'])
 
         file_name = os.path.basename(absolute_path)
 
+        # The input paths for the combine process are the output paths of the conversion processes.
+        # Therefore, we want build paths like './foo.json'.
+        relative_input_paths_for_combine.append(os.path.join(relative_output_path, file_name) + ".json")
+
         job = Job.create("worker.json_workflow.json_converter.gen_json",
                          args=(relative_input_path, relative_output_path, file_name),
                          result_ttl=None,
                          failure_ttl=None,
                          connection=redis)
+        jobs.append(job)
         queue.enqueue_job(job)
 
         json_workflow_job = JsonWorkflowJob(job_id=job.id,
+                                            type='convert',
                                             file_name=file_name,
                                             input=relative_input_path,
                                             output=relative_output_path,
                                             created_at=timezone.now(),
                                             json_workflow=json_workflow)
+        json_workflow_job.save()
 
+    if [request.data['combine']]:
+        output_file_name = request.data['outputFileName']
+        job = Job.create("worker.json_workflow.json_converter.combine_json",
+                         args=(relative_input_paths_for_combine, relative_output_path, output_file_name),
+                         result_ttl=None,
+                         failure_ttl=None,
+                         depends_on=jobs,
+                         connection=redis)
+        queue.enqueue_job(job)
+
+        json_workflow_job = JsonWorkflowJob(job_id=job.id,
+                                            type='combine',
+                                            file_name='COMBINE',
+                                            input='-',
+                                            output=os.path.join(relative_output_path, output_file_name),
+                                            created_at=timezone.now(),
+                                            json_workflow=json_workflow)
         json_workflow_job.save()
 
     return Response()

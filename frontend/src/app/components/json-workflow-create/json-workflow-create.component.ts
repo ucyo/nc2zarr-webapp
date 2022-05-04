@@ -1,8 +1,8 @@
-import {Component, OnInit} from '@angular/core';
-import * as _ from 'lodash';
-import {TreeviewItem} from '@filipve1994/ngx-treeview';
+import {Component, OnInit, ViewChild} from '@angular/core';
+import {TreeviewComponent, TreeviewItem} from '@filipve1994/ngx-treeview';
 import {FileExplorerApiService} from '../../services/file-explorer-api/file-explorer-api.service';
 import {JsonWorkflowApiService} from '../../services/json-workflow-api/json-workflow-api.service';
+import {JsonWorkflowCreation} from '../../shared/models/json-workflow-creation.model';
 
 @Component({
   selector: 'app-json-workflow-create',
@@ -11,8 +11,10 @@ import {JsonWorkflowApiService} from '../../services/json-workflow-api/json-work
 })
 export class JsonWorkflowCreateComponent implements OnInit {
 
-  inputItems: TreeviewItem[];
-  outputItems: TreeviewItem[];
+  @ViewChild(TreeviewComponent, {static: false})
+  treeviewComponent: TreeviewComponent;
+  inputItems: TreeviewItem[] = [];
+  outputItems: TreeviewItem[] = [];
   config = {
     hasAllCheckBox: true,
     hasFilter: true,
@@ -20,17 +22,17 @@ export class JsonWorkflowCreateComponent implements OnInit {
     decoupleChildFromParent: false,
     maxHeight: 500
   };
-  conversionAllowed: boolean;
   inputSelection: string[];
   outputSelection: string[];
-  jsonWorkflowName: string;
+  formErrors: string[] = [];
+  jsonWorkflowCreation: JsonWorkflowCreation;
 
   constructor(private fileExplorerApiService: FileExplorerApiService, private jsonWorkflowApiService: JsonWorkflowApiService) {
   }
 
   ngOnInit(): void {
 
-    this.conversionAllowed = false;
+    this.resetFields();
 
     this.fileExplorerApiService.loadInput().subscribe(result => {
       this.inputItems = [new TreeviewItem(result as any)];
@@ -53,26 +55,67 @@ export class JsonWorkflowCreateComponent implements OnInit {
 
   checkIfConvertButtonCanBeActivated() {
 
-    let canBeActive = true;
+    this.formErrors = [];
 
-    if (!this.jsonWorkflowName || this.jsonWorkflowName.length === 0) {
-      canBeActive = false;
+    if (!this.jsonWorkflowCreation.name || this.jsonWorkflowCreation.name.length === 0) {
+      this.formErrors.push('Provide a name for the JSON workflow.');
     }
 
-    if (!this.inputSelection ||
-      this.inputSelection.length === 0 ||
-      _.some(this.inputSelection, (path) => !_.includes(path, '.nc'))) {
-      canBeActive = false;
+    if (!this.inputSelection || this.inputSelection.length === 0) {
+      this.formErrors.push('Select at least one input file.');
     }
 
     if (!this.outputSelection || this.outputSelection.length !== 1) {
-      canBeActive = false;
+      this.formErrors.push('Select an output folder.');
     }
 
-    this.conversionAllowed = canBeActive;
+    if (this.jsonWorkflowCreation.combine &&
+      (!this.jsonWorkflowCreation.outputFileName || this.jsonWorkflowCreation.outputFileName.length === 0)
+    ) {
+      this.formErrors.push('Provide a name for the combined JSON file.');
+    }
   }
 
   convert() {
-    this.jsonWorkflowApiService.convert(this.jsonWorkflowName, this.inputSelection, this.outputSelection[0]).subscribe();
+    this.jsonWorkflowCreation.input = this.inputSelection;
+    this.jsonWorkflowCreation.output = this.outputSelection[0];
+
+    this.jsonWorkflowApiService.convert(this.jsonWorkflowCreation).subscribe();
+  }
+
+  resetFields() {
+
+    this.inputItems.forEach(item => {
+      item.checked = false;
+      item.collapsed = true;
+      item.correctChecked();
+    });
+    this.outputItems.forEach(item => {
+      item.checked = false;
+      item.collapsed = true;
+      item.correctChecked();
+    });
+
+    this.inputSelection = [];
+    this.outputSelection = [];
+    this.formErrors = [];
+    this.jsonWorkflowCreation = {
+      name: '',
+      combine: false,
+      outputFileName: '',
+      input: [],
+      output: null
+    };
+
+    this.updateTreeviewComponent();
+  }
+
+  updateTreeviewComponent() {
+
+    if (!this.treeviewComponent) {
+      return;
+    }
+
+    this.treeviewComponent.raiseSelectedChange();
   }
 }
