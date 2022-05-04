@@ -23,6 +23,7 @@ urlpatterns = [
     path('file-explorer/output', views.file_explorer_output, name='File Explorer - Output'),
     path('json-workflow', views.api_json_workflow, name='Json Workflow'),
     path('json-workflow/<int:pk>', views.api_delete_json_workflow, name='Json Workflow - Delete'),
+    path('json-workflow/job/<int:pk>', views.api_restart_job, name='Json Workflow - Job Restart'),
     path('json-workflow/list', views.api_list_json_workflows, name='Json Workflow - List'),
     path('admin/', admin.site.urls),
 ]

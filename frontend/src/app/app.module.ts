@@ -1,4 +1,4 @@
-import {NgModule} from '@angular/core';
+import {LOCALE_ID, NgModule} from '@angular/core';
 import {BrowserModule} from '@angular/platform-browser';
 import {HTTP_INTERCEPTORS, HttpClientModule} from '@angular/common/http';
 
@@ -16,6 +16,12 @@ import {JsonWorkflowComponent} from './views/json-workflow/json-workflow.compone
 import {CompleteConversionComponent} from './views/complete-conversion/complete-conversion.component';
 import {APIInterceptor} from './services/api-interceptor/api-interceptor';
 import {TreeviewModule} from '@filipve1994/ngx-treeview';
+import {LoadingBarHttpClientModule} from '@ngx-loading-bar/http-client';
+import {registerLocaleData} from '@angular/common';
+import localeDe from '@angular/common/locales/de';
+import localeDeExtra from '@angular/common/locales/extra/de';
+
+registerLocaleData(localeDe, localeDeExtra);
 
 @NgModule({
   declarations: [
@@ -31,6 +37,7 @@ import {TreeviewModule} from '@filipve1994/ngx-treeview';
     HttpClientModule,
     FontAwesomeModule,
     BrowserAnimationsModule,
+    LoadingBarHttpClientModule,
     ToastrModule.forRoot({
       timeOut: 2000,
       progressBar: true,
@@ -47,6 +54,9 @@ import {TreeviewModule} from '@filipve1994/ngx-treeview';
       provide: HTTP_INTERCEPTORS,
       useClass: APIInterceptor,
       multi: true,
+    }, {
+      provide: LOCALE_ID,
+      useValue: 'de'
     }],
   bootstrap: [AppComponent]
 })

@@ -28,9 +28,10 @@
       <td>{{jsonWorkflow.id}}</td>
       <td>{{jsonWorkflow.status}}</td>
       <td>{{getJobCount(jsonWorkflow)}}</td>
-      <td>{{jsonWorkflow.created_at | date:'long'}}</td>
+      <td>{{jsonWorkflow.created_at | date:'short'}}</td>
       <td>
-        <fa-icon [icon]="faSearch" (click)="jsonWorkflowJobs = jsonWorkflow.jobs"></fa-icon>
+        <fa-icon [icon]="faSearch"
+                 (click)="selectedJsonWorkflow = jsonWorkflow; jsonWorkflowJobs = jsonWorkflow.jobs; failedJob = null"></fa-icon>
         <fa-icon [icon]="faTrash" (click)="deleteJsonWorkflow(jsonWorkflow.id)"></fa-icon>
       </td>
     </tr>
@@ -38,27 +39,42 @@
   </table>
 </div>
 
+<h3 *ngIf="jsonWorkflowJobs && jsonWorkflowJobs.length > 0">Jobs of JSON workflow {{selectedJsonWorkflow.id}}</h3>
+
 <div class="overflow-auto" *ngIf="jsonWorkflowJobs && jsonWorkflowJobs.length > 0">
   <table class="table">
     <thead>
     <tr>
       <th scope="col">Name</th>
       <th scope="col">ID</th>
-      <th scope="col">Job ID</th>
       <th scope="col">Status</th>
+      <th scope="col">Job ID</th>
       <th scope="col">Created at</th>
+      <th></th>
     </tr>
     </thead>
     <tbody>
     <tr *ngFor="let jsonWorkflowJob of jsonWorkflowJobs">
       <td>{{jsonWorkflowJob.file_name}}</td>
       <td>{{jsonWorkflowJob.id}}</td>
-      <td>{{jsonWorkflowJob.job_id}}</td>
       <td>{{jsonWorkflowJob.status}}</td>
-      <td>{{jsonWorkflowJob.created_at | date:'long'}}</td>
+      <td>{{jsonWorkflowJob.job_id}}</td>
+      <td>{{jsonWorkflowJob.created_at | date:'short'}}</td>
+      <td>
+        <fa-icon [icon]="faSearch" *ngIf="jsonWorkflowJob.status === 'failed'"
+                 (click)="failedJob = jsonWorkflowJob"></fa-icon>
+        <fa-icon [icon]="faUndo" *ngIf="jsonWorkflowJob.status === 'failed'"
+                 (click)="retry(jsonWorkflowJob.id)"></fa-icon>
+      </td>
     </tr>
     </tbody>
   </table>
+</div>
+
+<h3 *ngIf="failedJob">Exception of job {{failedJob.id}}</h3>
+
+<div class="overflow-auto" *ngIf="failedJob">
+  <pre><code>{{failedJob.exception}}</code></pre>
 </div>
 
 <!--<h2>Tutorial</h2>-->

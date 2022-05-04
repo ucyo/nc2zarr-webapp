@@ -25,4 +25,8 @@ export class JsonWorkflowApiService {
   delete(id: number) {
     return this.httpClient.delete('json-workflow/' + id);
   }
+
+  restart(id: number) {
+    return this.httpClient.post('json-workflow/job/' + id, {});
+  }
 }

@@ -5,5 +5,6 @@ export interface JsonWorkflowJob {
   input: string;
   output: string;
   status: string;
+  exception: string;
   created_at: Date;
 }

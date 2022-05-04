@@ -12,4 +12,4 @@ class JsonWorkflowSerializer(serializers.ModelSerializer):
 class JsonWorkflowJobSerializer(serializers.ModelSerializer):
     class Meta:
         model = JsonWorkflowJob
-        fields = ['id', 'job_id', 'file_name', 'input', 'output', 'created_at', 'status']
+        fields = ['id', 'job_id', 'file_name', 'input', 'output', 'created_at', 'status', 'exception']

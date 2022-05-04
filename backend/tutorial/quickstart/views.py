@@ -1,6 +1,7 @@
 import os
 import pathlib
 
+import netCDF4 as netCDF4
 from django.db.transaction import atomic
 from django.http import JsonResponse
 from django.utils import timezone
@@ -47,18 +48,16 @@ def api_list_json_workflows(request):
     """
     Retrieve folder structure of input folder.
     """
-    if request.method == 'GET':
+    json_workflows = JsonWorkflow.objects.all()
+    json_workflow_serializer = JsonWorkflowSerializer(json_workflows, many=True)
 
-        json_workflows = JsonWorkflow.objects.all()
-        json_workflow_serializer = JsonWorkflowSerializer(json_workflows, many=True)
+    redis = open_redis_connection()
+    i = 0
+    for json_workflow in json_workflows:
+        process(json_workflow, i, redis, json_workflow_serializer)
+        i = i + 1
 
-        redis = open_redis_connection()
-        i = 0
-        for json_workflow in json_workflows:
-            process(json_workflow, i, redis, json_workflow_serializer)
-            i = i + 1
-
-        return JsonResponse(json_workflow_serializer.data, safe=False)
+    return JsonResponse(json_workflow_serializer.data, safe=False)
 
 
 @atomic
@@ -80,6 +79,7 @@ def process(json_workflow: JsonWorkflow, index: int, redis: Redis, json_workflow
 
         if job.job_id in job_dict:
             job.status = job_dict[job.job_id].get_status()
+            job.exception = job_dict[job.job_id].exc_info
         else:
             job.status = "finished"
 
@@ -138,4 +138,13 @@ def api_json_workflow(request):
 @api_view(['DELETE'])
 def api_delete_json_workflow(request, pk: int):
     JsonWorkflow.objects.filter(id=pk).delete()
+    return Response()
+
+
+@api_view(['POST'])
+def api_restart_job(request, pk: int):
+    job = JsonWorkflowJob.objects.get(id=pk)
+    redis = open_redis_connection()
+    queue = Queue(connection=redis)
+    queue.failed_job_registry.requeue(job.job_id)
     return Response()

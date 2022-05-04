@@ -5,7 +5,7 @@ import * as _ from 'lodash';
 import {JsonWorkflowApiService} from '../../services/json-workflow-api/json-workflow-api.service';
 import {JsonWorkflow} from '../../shared/models/json-workflow.model';
 import {JsonWorkflowJob} from '../../shared/models/json-workflow-job.model';
-import {faSearch, faTrash} from '@fortawesome/free-solid-svg-icons';
+import {faSearch, faTrash, faUndo} from '@fortawesome/free-solid-svg-icons';
 
 @Component({
   selector: 'app-json-workflow',
@@ -16,6 +16,7 @@ export class JsonWorkflowComponent implements OnInit {
 
   faSearch = faSearch;
   faTrash = faTrash;
+  faUndo = faUndo;
 
   inputItems: TreeviewItem[];
   outputItems: TreeviewItem[];
@@ -31,7 +32,9 @@ export class JsonWorkflowComponent implements OnInit {
   outputSelection: string[];
   jsonWorkflowName: string;
   jsonWorkflows: JsonWorkflow[];
+  selectedJsonWorkflow: JsonWorkflow;
   jsonWorkflowJobs: JsonWorkflowJob[];
+  failedJob: JsonWorkflowJob;
 
   constructor(private fileExplorerApiService: FileExplorerApiService, private jsonWorkflowApiService: JsonWorkflowApiService) {
   }
@@ -91,6 +94,8 @@ export class JsonWorkflowComponent implements OnInit {
   }
 
   deleteJsonWorkflow(id: number) {
+    this.failedJob = null;
+    this.selectedJsonWorkflow = null;
     this.jsonWorkflows = [];
     this.jsonWorkflowJobs = [];
 
@@ -102,6 +107,17 @@ export class JsonWorkflowComponent implements OnInit {
       return job.status === 'finished' ? 'finished' : 'notFinished'
     });
 
-    return counts['finished'] + '/' + jsonWorkflow.jobs.length;
+    let finished = counts['finished']? counts['finished']: 0;
+
+    return finished + '/' + jsonWorkflow.jobs.length;
+  }
+
+  retry(id: number) {
+    this.failedJob = null;
+    this.selectedJsonWorkflow = null;
+    this.jsonWorkflows = [];
+    this.jsonWorkflowJobs = [];
+
+    this.jsonWorkflowApiService.restart(id).subscribe(() => this.reloadJsonWorkflows());
   }
 }
