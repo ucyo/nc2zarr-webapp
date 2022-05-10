@@ -35,57 +35,10 @@ def combine_json(relative_input_paths, relative_output_path, file_name):
 
     time.sleep(3)
 
-    print('Paths:')
-
-    for p in input_paths:
-        print(p)
-
-    print('Content Length:')
-
-    for p in input_paths:
-        print(p + '\n')
-        with open(p, 'r') as f:
-            print(len(f.read()))
-        print('\n')
-
-    # Debugging Start
-    with fsspec.open_files(input_paths) as ofs:
-        fo_list = [ujson.load(of) for of in ofs]
-
-    for fo in fo_list:
-        print(fo)
-
-    fss = [
-        fsspec.filesystem(
-            "reference", fo=fo,
-            remote_protocol='file',
-            remote_options={}
-        ) for fo in fo_list
-    ]
-    print(len(fss))
-    print(repr(fss[0]))
-    print(repr(fss[0].fs))
-    # Debugging End
-
     multi_zarr_to_zarr = MultiZarrToZarr(
         input_paths,
         remote_protocol='file',
-        xarray_open_kwargs={
-            "decode_cf": False,
-            "mask_and_scale": False,
-            "decode_times": False,
-            "decode_timedelta": False,
-            "use_cftime": False,
-            "decode_coords": False
-        },
-        xarray_concat_args={
-            'data_vars': 'minimal',
-            'coords': 'minimal',
-            'compat': 'override',
-            'join': 'override',
-            'combine_attrs': 'override',
-            'dim': 't'
-        }
+        concat_dims=['t']
     )
 
     if not file_name.endswith('.json'):
