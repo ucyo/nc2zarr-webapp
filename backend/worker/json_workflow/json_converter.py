@@ -1,5 +1,4 @@
 import os.path
-import time
 
 import fsspec
 import netCDF4
@@ -32,8 +31,6 @@ def combine_json(relative_input_paths, relative_output_path, file_name):
     # The input files are in the output folder for the combine process.
     # Therefore, we want to build input paths like '../output/foo.json'.
     input_paths = list(map(build_relative_output_path, relative_input_paths))
-
-    time.sleep(3)
 
     multi_zarr_to_zarr = MultiZarrToZarr(
         input_paths,

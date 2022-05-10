@@ -125,13 +125,13 @@ def api_json_workflow(request):
         # Therefore, we want build paths like './foo.json'.
         relative_input_paths_for_combine.append(os.path.join(relative_output_path, file_name) + ".json")
 
-        job = Job.create("worker.json_workflow.json_converter.gen_json",
-                         args=(relative_input_path, relative_output_path, file_name),
-                         result_ttl=None,
-                         failure_ttl=None,
-                         connection=redis)
+        job = queue.enqueue("worker.json_workflow.json_converter.gen_json",
+                            relative_input_path,
+                            relative_output_path,
+                            file_name,
+                            result_ttl=None,
+                            failure_ttl=None)
         jobs.append(job)
-        queue.enqueue_job(job)
 
         json_workflow_job = JsonWorkflowJob(job_id=job.id,
                                             type='convert',
@@ -144,13 +144,14 @@ def api_json_workflow(request):
 
     if request.data['combine']:
         output_file_name = request.data['outputFileName']
-        job = Job.create("worker.json_workflow.json_converter.combine_json",
-                         args=(relative_input_paths_for_combine, relative_output_path, output_file_name),
-                         result_ttl=None,
-                         failure_ttl=None,
-                         depends_on=jobs,
-                         connection=redis)
-        queue.enqueue_job(job)
+
+        job = queue.enqueue("worker.json_workflow.json_converter.combine_json",
+                            relative_input_paths_for_combine,
+                            relative_output_path,
+                            output_file_name,
+                            result_ttl=None,
+                            failure_ttl=None,
+                            depends_on=jobs)
 
         json_workflow_job = JsonWorkflowJob(job_id=job.id,
                                             type='combine',
