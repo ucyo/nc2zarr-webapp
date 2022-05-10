@@ -65,4 +65,14 @@ export class JsonWorkflowOverviewComponent implements OnInit {
     this.jsonWorkflows = [];
     this.jsonWorkflowJobs = [];
   }
+
+  jobFailedAsNetCDF3(jsonWorkflowJob: JsonWorkflowJob) {
+    return jsonWorkflowJob.status === 'failed' &&
+      jsonWorkflowJob.exception.indexOf('NETCDF3') !== -1;
+  }
+
+  workflowFailedAsNetCDF3(jsonWorkflow: JsonWorkflow) {
+    return jsonWorkflow.status === 'failed' &&
+      _.some(jsonWorkflow.jobs, job => job.status === 'failed' && job.exception.indexOf('NETCDF3') !== -1);
+  }
 }

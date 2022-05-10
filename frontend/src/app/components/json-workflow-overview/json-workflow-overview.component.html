@@ -29,6 +29,9 @@
         <fa-icon [icon]="faSearch"
                  (click)="selectedJsonWorkflow = jsonWorkflow; jsonWorkflowJobs = jsonWorkflow.jobs; failedJob = null"></fa-icon>
         <fa-icon [icon]="faTrash" (click)="deleteJsonWorkflow(jsonWorkflow.id)"></fa-icon>
+
+        <ng-template #tipNetCDF3>NetCDF3 is not supported</ng-template>
+        <span [ngbTooltip]="tipNetCDF3" class="badge badge-secondary" *ngIf="workflowFailedAsNetCDF3(jsonWorkflow)">NetCDF3</span>
       </td>
     </tr>
     </tbody>
@@ -71,10 +74,14 @@
         <td>{{jsonWorkflowJob.ended_at | date:'short'}}</td>
         <td>{{jsonWorkflowJob.created_at | date:'short'}}</td>
         <td>
-          <fa-icon [icon]="faSearch" *ngIf="jsonWorkflowJob.status === 'failed'"
+          <ng-template #tipShowException>Show exception</ng-template>
+          <fa-icon [ngbTooltip]="tipShowException" [icon]="faSearch" *ngIf="jsonWorkflowJob.status === 'failed'"
                    (click)="failedJob = jsonWorkflowJob"></fa-icon>
-          <fa-icon [icon]="faUndo" *ngIf="jsonWorkflowJob.status === 'failed'"
+          <ng-template #tipRetry>Retry</ng-template>
+          <fa-icon [ngbTooltip]="tipRetry" [icon]="faUndo" *ngIf="jsonWorkflowJob.status === 'failed'"
                    (click)="retry(jsonWorkflowJob.id)"></fa-icon>
+          <ng-template #tipNetCDF3>NetCDF3 is not supported</ng-template>
+          <span [ngbTooltip]="tipNetCDF3" class="badge badge-secondary" *ngIf="jobFailedAsNetCDF3(jsonWorkflowJob)">NetCDF3</span>
         </td>
       </tr>
       </tbody>
