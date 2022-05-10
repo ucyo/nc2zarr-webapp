@@ -54,3 +54,10 @@ services:
     build: ./frontend
     ports:
       - "80:80"
+
+  jupyter:
+    build: ./jupyter
+    volumes:
+      - .:/home/jovyan/work
+    ports:
+      - "8888:8888"
