@@ -142,7 +142,7 @@ def api_json_workflow(request):
                                             json_workflow=json_workflow)
         json_workflow_job.save()
 
-    if [request.data['combine']]:
+    if request.data['combine']:
         output_file_name = request.data['outputFileName']
         job = Job.create("worker.json_workflow.json_converter.combine_json",
                          args=(relative_input_paths_for_combine, relative_output_path, output_file_name),
