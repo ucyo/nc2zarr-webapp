@@ -13,4 +13,4 @@ USER 1000
 RUN mkdir /home/python/code
 WORKDIR /home/python/code
 
-RUN python -m pip install rq zarr xarray redis fsspec h5py kerchunk ujson netCDF4 Jinja2 dask
+RUN python -m pip install rq zarr xarray redis fsspec h5py kerchunk ujson netCDF4 Jinja2 dask numpy cftime

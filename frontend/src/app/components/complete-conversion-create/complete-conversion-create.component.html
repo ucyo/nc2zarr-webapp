@@ -1,0 +1,57 @@
+<h2>Create complete conversion</h2>
+
+<div class="row">
+  <div class="col-6">
+    <h3>Input</h3>
+    <ngx-treeview
+      [config]="config"
+      [items]="inputItems"
+      (selectedChange)="onSelectedChangeForInput($event)"
+    >
+    </ngx-treeview>
+  </div>
+  <div class="col-6">
+    <h3>Output</h3>
+    <ngx-treeview
+      [config]="config"
+      [items]="outputItems"
+      (selectedChange)="onSelectedChangeForOutput($event)"
+    >
+    </ngx-treeview>
+  </div>
+</div>
+
+<hr>
+
+<div class="row">
+  <div class="col-6">
+
+    <div class="form-group">
+      <label for="name">Name of complete conversion:</label>
+      <input class="form-control" id="name" placeholder="Enter name of complete conversion"
+             [(ngModel)]="completeConversionCreation.name"
+             (ngModelChange)="checkIfConvertButtonCanBeActivated()">
+    </div>
+
+    <button type="button" class="btn btn-primary" [disabled]="formErrors.length > 0" (click)="convert()">
+      Convert
+    </button>
+  </div>
+</div>
+
+
+<div *ngIf="formErrors.length > 0" style="margin-top: 20px;">
+
+  <table class="table table-sm">
+    <thead>
+    <tr>
+      <th>Necessary steps</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr *ngFor="let formError of formErrors">
+      <td class="text-danger">{{formError}}</td>
+    </tr>
+    </tbody>
+  </table>
+</div>

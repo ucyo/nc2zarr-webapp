@@ -1,0 +1,100 @@
+<h2>Overview
+  <button (click)="refresh()" type="button" class="btn btn-dark float-right">
+    Refresh
+  </button>
+</h2>
+
+<div class="overflow-auto table-responsive">
+  <table class="table">
+    <thead>
+    <tr>
+      <th scope="col">Name</th>
+      <th scope="col">ID</th>
+      <th scope="col">Status</th>
+      <th scope="col">Jobs</th>
+      <th scope="col">Created at</th>
+      <th></th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr *ngFor="let completeConversion of completeConversions"
+        [class.table-success]="completeConversion.status === 'finished'"
+        [class.table-danger]="completeConversion.status === 'failed'">
+      <th scope="row">{{completeConversion.name}}</th>
+      <td>{{completeConversion.id}}</td>
+      <td>{{completeConversion.status}}</td>
+      <td>{{getJobCount(completeConversion)}}</td>
+      <td>{{completeConversion.created_at | date:'short'}}</td>
+      <td>
+        <fa-icon [icon]="faSearch"
+                 (click)="selectedCompleteConversion = completeConversion; completeConversionJobs = completeConversion.jobs; failedJob = null"></fa-icon>
+        <fa-icon [icon]="faTrash" (click)="deleteCompleteConversion(completeConversion.id)"></fa-icon>
+      </td>
+    </tr>
+    </tbody>
+  </table>
+</div>
+
+<div *ngIf="completeConversionJobs && completeConversionJobs.length > 0">
+
+  <h4>Complete conversion - {{selectedCompleteConversion.name}} ({{selectedCompleteConversion.id}})
+
+    <button (click)="selectedCompleteConversion = null; selectedCompleteConversion = null; failedJob = null"
+            type="button"
+            class="btn btn-dark float-right">
+      Close
+    </button>
+  </h4>
+
+  <div class="overflow-auto table-responsive">
+    <table class="table">
+      <thead>
+      <tr>
+        <th scope="col">Name</th>
+        <th scope="col">ID</th>
+        <th scope="col">Status</th>
+        <th scope="col">Job ID</th>
+        <th scope="col">Started at</th>
+        <th scope="col">Ended at</th>
+        <th scope="col">Created at</th>
+        <th></th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let completeConversionJob of completeConversionJobs"
+          [class.table-success]="completeConversionJob.status === 'finished'"
+          [class.table-danger]="completeConversionJob.status === 'failed'">
+        <td title="{{completeConversionJob.file_name}}">{{completeConversionJob.file_name | truncate:20}}</td>
+        <td>{{completeConversionJob.id}}</td>
+        <td>{{completeConversionJob.status}}</td>
+        <td title="{{completeConversionJob.job_id}}">{{completeConversionJob.job_id | truncate:6}}</td>
+        <td>{{completeConversionJob.started_at | date:'short'}}</td>
+        <td>{{completeConversionJob.ended_at | date:'short'}}</td>
+        <td>{{completeConversionJob.created_at | date:'short'}}</td>
+        <td>
+          <ng-template #tipShowException>Show exception</ng-template>
+          <fa-icon [ngbTooltip]="tipShowException" [icon]="faSearch" *ngIf="completeConversionJob.status === 'failed'"
+                   (click)="failedJob = completeConversionJob"></fa-icon>
+          <ng-template #tipRetry>Retry</ng-template>
+          <fa-icon [ngbTooltip]="tipRetry" [icon]="faUndo" *ngIf="completeConversionJob.status === 'failed'"
+                   (click)="retry(completeConversionJob.id)"></fa-icon>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+
+<div *ngIf="failedJob">
+  <h4>Job exception ({{failedJob.id}})
+    <button (click)="failedJob = null" type="button" class="btn btn-dark float-right">
+      Close
+    </button>
+  </h4>
+
+  <div class="overflow-auto" *ngIf="failedJob">
+    <pre><code>{{failedJob.exception}}</code></pre>
+  </div>
+</div>
+

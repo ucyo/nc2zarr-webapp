@@ -23,6 +23,8 @@ import localeDeExtra from '@angular/common/locales/extra/de';
 import {JsonWorkflowOverviewComponent} from './components/json-workflow-overview/json-workflow-overview.component';
 import {JsonWorkflowCreateComponent} from './components/json-workflow-create/json-workflow-create.component';
 import {TruncatePipe} from './pipes/truncate-pipe/truncate.pipe';
+import { CompleteConversionCreateComponent } from './components/complete-conversion-create/complete-conversion-create.component';
+import { CompleteConversionOverviewComponent } from './components/complete-conversion-overview/complete-conversion-overview.component';
 
 registerLocaleData(localeDe, localeDeExtra);
 
@@ -35,7 +37,9 @@ registerLocaleData(localeDe, localeDeExtra);
     CompleteConversionComponent,
     JsonWorkflowOverviewComponent,
     JsonWorkflowCreateComponent,
-    TruncatePipe
+    TruncatePipe,
+    CompleteConversionCreateComponent,
+    CompleteConversionOverviewComponent
   ],
   imports: [
     BrowserModule,
