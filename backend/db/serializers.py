@@ -6,7 +6,7 @@ from db.models import JsonWorkflow, JsonWorkflowJob, CompleteConversion, Complet
 class JsonWorkflowSerializer(serializers.ModelSerializer):
     class Meta:
         model = JsonWorkflow
-        fields = ['id', 'name', 'created_at']
+        fields = ['id', 'name', 'created_at', 'combine']
 
 
 class JsonWorkflowJobSerializer(serializers.ModelSerializer):

@@ -5,6 +5,7 @@ class JsonWorkflow(models.Model):
     name = models.CharField(max_length=200)
     created_at = models.DateTimeField()
     status = models.CharField(null=True, max_length=30)
+    combine = models.BooleanField(default=False)
 
 
 class JsonWorkflowJob(models.Model):
@@ -25,6 +26,11 @@ class CompleteConversion(models.Model):
     name = models.CharField(max_length=200)
     created_at = models.DateTimeField()
     status = models.CharField(null=True, max_length=30)
+    precision = models.FloatField(null=True)
+    auto_chunks = models.BooleanField(default=True)
+    packed = models.BooleanField(default=True)
+    unique_times = models.BooleanField(default=True)
+    chunks = models.CharField(null=True, max_length=1000)
 
 
 class CompleteConversionJob(models.Model):

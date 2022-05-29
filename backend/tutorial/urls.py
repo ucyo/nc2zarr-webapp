@@ -27,7 +27,8 @@ urlpatterns = [
     path('json-workflow/list', views.api_list_json_workflows, name='Json Workflow - List'),
     path('complete-conversion', views.api_complete_conversion, name='Complete Conversion'),
     path('complete-conversion/<int:pk>', views.api_delete_complete_conversion, name='Complete Conversion - Delete'),
-    path('complete-conversion/job/<int:pk>', views.api_restart_job_of_complete_conversion, name='Complete Conversion - Job Restart'),
+    path('complete-conversion/job/<int:pk>', views.api_restart_job_of_complete_conversion,
+         name='Complete Conversion - Job Restart'),
     path('complete-conversion/list', views.api_list_complete_conversions, name='Complete Conversion - List'),
     path('admin/', admin.site.urls),
 ]

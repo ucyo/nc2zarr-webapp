@@ -1,3 +1,4 @@
+import json
 import os
 import pathlib
 
@@ -54,18 +55,19 @@ def api_list_json_workflows(request):
     redis = open_redis_connection()
     i = 0
     for json_workflow in json_workflows:
-        process(json_workflow, i, redis, json_workflow_serializer)
+        process_json_workflow(json_workflow, i, redis, json_workflow_serializer)
         i = i + 1
 
     return JsonResponse(json_workflow_serializer.data, safe=False)
 
 
 @atomic
-def process(json_workflow: JsonWorkflow, index: int, redis: Redis, json_workflow_serializer: JsonWorkflowSerializer):
+def process_json_workflow(json_workflow: JsonWorkflow, index: int, redis: Redis,
+                          json_workflow_serializer: JsonWorkflowSerializer):
     json_workflow_jobs = list(JsonWorkflowJob.objects.filter(json_workflow=json_workflow.id))
 
-    states = ["no-jobs", "no-rq-job-available", "failed", "started", "queued", "finished"]
-    current_state = 0 if len(json_workflow_jobs) == 0 else 5
+    states = ["no-jobs", "no-rq-job-available", "failed", "started", "queued", "deferred", "finished"]
+    current_state = 0 if len(json_workflow_jobs) == 0 else (len(states) + 1)
 
     jobs = Job.fetch_many(list(map(lambda j: j.job_id, json_workflow_jobs)), connection=redis)
 
@@ -106,7 +108,19 @@ def api_complete_conversion(request):
     redis = open_redis_connection()
     queue = Queue(connection=redis)
 
-    complete_conversion = CompleteConversion(name=request.data['name'], created_at=timezone.now())
+    chunk_dictionary = {}
+    for chunk in request.data['chunks']:
+        chunk_dictionary[chunk['name']] = chunk['value']
+
+    complete_conversion = CompleteConversion(
+        name=request.data['name'],
+        created_at=timezone.now(),
+        precision=request.data['precision'],
+        auto_chunks=request.data['autoChunks'],
+        packed=request.data['packed'],
+        unique_times=request.data['uniqueTimes'],
+        chunks=json.dumps(chunk_dictionary)
+    )
     complete_conversion.save()
 
     for absolute_path in request.data['input']:
@@ -119,6 +133,11 @@ def api_complete_conversion(request):
                             relative_input_path,
                             relative_output_path,
                             file_name,
+                            complete_conversion.precision,
+                            complete_conversion.auto_chunks,
+                            complete_conversion.packed,
+                            complete_conversion.unique_times,
+                            chunk_dictionary,
                             result_ttl=None,
                             failure_ttl=None)
 
@@ -144,7 +163,7 @@ def api_json_workflow(request):
     redis = open_redis_connection()
     queue = Queue(connection=redis)
 
-    json_workflow = JsonWorkflow(name=request.data['name'], created_at=timezone.now())
+    json_workflow = JsonWorkflow(name=request.data['name'], created_at=timezone.now(), combine=request.data['combine'])
     json_workflow.save()
 
     relative_input_paths_for_combine = []
@@ -178,7 +197,7 @@ def api_json_workflow(request):
                                             json_workflow=json_workflow)
         json_workflow_job.save()
 
-    if request.data['combine']:
+    if json_workflow.combine:
         output_file_name = request.data['outputFileName']
 
         job = queue.enqueue("worker.json_workflow.json_converter.combine_json",
@@ -197,6 +216,22 @@ def api_json_workflow(request):
                                             created_at=timezone.now(),
                                             json_workflow=json_workflow)
         json_workflow_job.save()
+
+        for relative_input_path in relative_input_paths_for_combine:
+            clean_up_job = queue.enqueue("worker.json_workflow.json_converter.clean_up_after_combine",
+                                         relative_input_path,
+                                         result_ttl=None,
+                                         failure_ttl=None,
+                                         depends_on=job)
+
+            clean_up_json_workflow_job = JsonWorkflowJob(job_id=clean_up_job.id,
+                                                         type='clean-up',
+                                                         file_name='CLEAN-UP',
+                                                         input=relative_input_path,
+                                                         output='-',
+                                                         created_at=timezone.now(),
+                                                         json_workflow=json_workflow)
+            clean_up_json_workflow_job.save()
 
     return Response()
 

@@ -3,6 +3,8 @@ import {TreeviewComponent, TreeviewItem} from '@filipve1994/ngx-treeview';
 import {FileExplorerApiService} from '../../services/file-explorer-api/file-explorer-api.service';
 import {CompleteConversionCreation} from '../../shared/models/complete-conversion-creation.model';
 import {CompleteConversionApiService} from '../../services/complete-conversion-api/complete-conversion-api.service';
+import {faMinus} from '@fortawesome/free-solid-svg-icons';
+import {Chunk} from '../../shared/models/chunk.model';
 
 @Component({
   selector: 'app-complete-conversion-create',
@@ -10,6 +12,8 @@ import {CompleteConversionApiService} from '../../services/complete-conversion-a
   styleUrls: ['./complete-conversion-create.component.scss']
 })
 export class CompleteConversionCreateComponent implements OnInit {
+
+  faMinus = faMinus;
 
   @ViewChild(TreeviewComponent, {static: false})
   treeviewComponent: TreeviewComponent;
@@ -26,6 +30,13 @@ export class CompleteConversionCreateComponent implements OnInit {
   outputSelection: string[];
   formErrors: string[] = [];
   completeConversionCreation: CompleteConversionCreation;
+  useAdvancedConfiguration: boolean;
+
+  readonly defaultForAutoChunks: boolean = true;
+  readonly defaultForChunks: Chunk[] = [];
+  readonly defaultForPacked: boolean = true;
+  readonly defaultForUniqueTimes: boolean = true;
+  readonly defaultForPrecision: number = 0.01;
 
   constructor(private fileExplorerApiService: FileExplorerApiService, private completeConversionApiService: CompleteConversionApiService) {
   }
@@ -68,6 +79,14 @@ export class CompleteConversionCreateComponent implements OnInit {
     if (!this.outputSelection || this.outputSelection.length !== 1) {
       this.formErrors.push('Select an output folder.');
     }
+
+    if (!this.completeConversionCreation.autoChunks && this.completeConversionCreation.chunks.length === 0) {
+      this.formErrors.push('Auto chunks are deselected. Create at least one custom chunk.');
+    }
+
+    if (!this.completeConversionCreation.precision || this.completeConversionCreation.precision <= 0) {
+      this.formErrors.push('Insert a precision value greater 0.');
+    }
   }
 
   convert() {
@@ -75,6 +94,10 @@ export class CompleteConversionCreateComponent implements OnInit {
     this.completeConversionCreation.output = this.outputSelection[0];
 
     this.completeConversionApiService.convert(this.completeConversionCreation).subscribe();
+  }
+
+  addNewChunk() {
+    this.completeConversionCreation.chunks.push({name: '', value: 0});
   }
 
   resetFields() {
@@ -96,7 +119,12 @@ export class CompleteConversionCreateComponent implements OnInit {
     this.completeConversionCreation = {
       name: '',
       input: [],
-      output: null
+      output: null,
+      chunks: this.defaultForChunks,
+      autoChunks: this.defaultForAutoChunks,
+      packed: this.defaultForPacked,
+      uniqueTimes: this.defaultForUniqueTimes,
+      precision: this.defaultForPrecision
     };
 
     this.updateTreeviewComponent();
@@ -109,5 +137,24 @@ export class CompleteConversionCreateComponent implements OnInit {
     }
 
     this.treeviewComponent.raiseSelectedChange();
+  }
+
+  removeChunk(i: number) {
+    this.completeConversionCreation.chunks.splice(i, 1);
+  }
+
+  resetToDefaultValuesIfDeactivated() {
+
+    if (this.useAdvancedConfiguration) {
+      return;
+    }
+
+    this.completeConversionCreation.chunks = this.defaultForChunks;
+    this.completeConversionCreation.autoChunks = this.defaultForAutoChunks;
+    this.completeConversionCreation.packed = this.defaultForPacked;
+    this.completeConversionCreation.uniqueTimes = this.defaultForUniqueTimes;
+    this.completeConversionCreation.precision = this.defaultForPrecision;
+
+    this.checkIfConvertButtonCanBeActivated();
   }
 }

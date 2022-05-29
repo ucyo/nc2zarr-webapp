@@ -33,6 +33,81 @@
              (ngModelChange)="checkIfConvertButtonCanBeActivated()">
     </div>
 
+    <div class="form-check" style="margin-bottom: 15px;">
+      <input type="checkbox" class="form-check-input" id="showAdvancedConfiguration"
+             [(ngModel)]="useAdvancedConfiguration"
+             (ngModelChange)="resetToDefaultValuesIfDeactivated()">
+      <label class="form-check-label" for="showAdvancedConfiguration">Use advanced configuration</label>
+    </div>
+
+
+    <div *ngIf="useAdvancedConfiguration">
+
+      <h3 style="margin-top: 15px">Advanced configuration</h3>
+
+      <div class="form-check" style="margin-bottom: 15px;">
+        <input type="checkbox" class="form-check-input" id="uniqueTimes"
+               [(ngModel)]="completeConversionCreation.uniqueTimes"
+               (ngModelChange)="checkIfConvertButtonCanBeActivated()">
+        <label class="form-check-label" for="uniqueTimes">Unique times</label>
+      </div>
+
+      <div class="form-check" style="margin-bottom: 15px;">
+        <input type="checkbox" class="form-check-input" id="packed" [(ngModel)]="completeConversionCreation.packed"
+               (ngModelChange)="checkIfConvertButtonCanBeActivated()">
+        <label class="form-check-label" for="packed">Packed</label>
+      </div>
+
+      <div class="form-group">
+        <label for="precision">Precision:</label>
+        <input class="form-control" id="precision" placeholder="Enter precision like 0.01" type="number"
+               [(ngModel)]="completeConversionCreation.precision"
+               (ngModelChange)="checkIfConvertButtonCanBeActivated()">
+      </div>
+
+      <div class="form-check" style="margin-bottom: 15px;">
+        <input type="checkbox" class="form-check-input" id="autoChunks"
+               [(ngModel)]="completeConversionCreation.autoChunks"
+               (ngModelChange)="checkIfConvertButtonCanBeActivated()">
+        <label class="form-check-label" for="autoChunks">Auto chunks</label>
+      </div>
+
+      <table class="table" *ngIf="!completeConversionCreation.autoChunks">
+        <thead>
+        <tr>
+          <th>Chunk</th>
+          <th>Value</th>
+          <th></th>
+        </tr>
+        </thead>
+
+        <tbody>
+        <tr *ngFor="let chunk of completeConversionCreation.chunks; let i=index;">
+          <td>
+            <input class="form-control"
+                   [(ngModel)]="chunk.name"
+                   (ngModelChange)="checkIfConvertButtonCanBeActivated()">
+          </td>
+          <td>
+            <input class="form-control"
+                   [(ngModel)]="chunk.value"
+                   (ngModelChange)="checkIfConvertButtonCanBeActivated()">
+          </td>
+          <td style="padding-top: 20px;">
+            <fa-icon [icon]="faMinus"
+                     (click)="removeChunk(i)"></fa-icon>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+
+      <button class="btn btn-secondary" (click)="addNewChunk()" *ngIf="!completeConversionCreation.autoChunks"
+              style="margin-bottom: 20px;">
+        Add chunk
+      </button>
+
+    </div>
+
     <button type="button" class="btn btn-primary" [disabled]="formErrors.length > 0" (click)="convert()">
       Convert
     </button>

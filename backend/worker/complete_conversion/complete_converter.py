@@ -9,7 +9,14 @@ fs = fsspec.filesystem('file')
 DEFAULT_ZARR_COMPRESSOR = zarr.Blosc(cname="zstd", clevel=3, shuffle=2)
 
 
-def complete_conversion(relative_input_path, relative_output_path, file_name):
+def complete_conversion(relative_input_path,
+                        relative_output_path,
+                        file_name,
+                        precision: float,
+                        auto_chunks: bool,
+                        packed: bool,
+                        unique_times: bool,
+                        chunk_dictionary):
     relative_input_path = build_relative_input_path(relative_input_path)
     relative_output_path = build_relative_output_path(relative_output_path)
 
@@ -18,18 +25,19 @@ def complete_conversion(relative_input_path, relative_output_path, file_name):
     nc_to_zarr(
         ncglob=relative_input_path,
         store=out_path,
-        chunks={"time": 1, "latitude": 721, "longitude": 1440},
-        is_unique_times=True,
-        packed=True,
+        auto_chunks=auto_chunks,
+        chunk_dictionary=chunk_dictionary,
+        unique_times=unique_times,
+        packed=packed,
         dtype="float32",
-        precision=1e-2)
+        precision=precision)
 
 
 def nc_to_zarr(
         ncglob,
         store,
-        chunks,
-        is_unique_times=True,
+        chunk_dictionary,
+        unique_times=True,
         packed=False,
         dtype="int32",
         precision=1e-3,
@@ -37,19 +45,23 @@ def nc_to_zarr(
         parallel=False,
         compressor=DEFAULT_ZARR_COMPRESSOR,
         mode="w",
+        auto_chunks=True
 ):
     print("Open dataset from: {}".format(ncglob))
-    dataset = xr.open_mfdataset(ncglob, parallel=parallel)
+    dataset = xr.open_mfdataset(ncglob, parallel=parallel, decode_times=False)
 
     if isinstance(dtype, str):
         dtype = {v: dtype for v in dataset.data_vars}
 
     # Removing duplicate time indexes
-    if is_unique_times:
-        dataset = unique_times(dataset)
+    if unique_times:
+        dataset = remove_duplicate_times(dataset)
 
     # Chunking dataset, will define chunking in zarr
-    dataset = dataset.chunk(chunks)
+    if auto_chunks:
+        dataset = dataset.chunk("auto")
+    else:
+        dataset = dataset.chunk(chunk_dictionary)
 
     # Setting encoding
     encoding = {}
@@ -69,7 +81,7 @@ def nc_to_zarr(
     return dataset
 
 
-def unique_times(dset):
+def remove_duplicate_times(dset):
     """Remove duplicate times from dataset."""
     _, index = np.unique(dset['time'], return_index=True)
     return dset.isel(time=index)

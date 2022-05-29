@@ -12,6 +12,6 @@ def list_folders_and_files(path):
 def list_folders(path):
     d = {'text': os.path.basename(path), 'value': path, 'checked': False, 'collapsed': True}
     if os.path.isdir(path):
-        children = filter(lambda p: os.path.isdir(os.path.join(path, p)), os.listdir(path))
+        children = filter(lambda p: not p.endswith('.zarr') and os.path.isdir(os.path.join(path, p)), os.listdir(path))
         d['children'] = [list_folders(os.path.join(path, x)) for x in children]
     return d
