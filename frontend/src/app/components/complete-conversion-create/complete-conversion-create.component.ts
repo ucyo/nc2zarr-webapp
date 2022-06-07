@@ -34,7 +34,7 @@ export class CompleteConversionCreateComponent implements OnInit {
 
   readonly defaultForAutoChunks: boolean = true;
   readonly defaultForChunks: Chunk[] = [];
-  readonly defaultForPacked: boolean = true;
+  readonly defaultForPacked: boolean = false;
   readonly defaultForUniqueTimes: boolean = true;
   readonly defaultForPrecision: number = 0.01;
 

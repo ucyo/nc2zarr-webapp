@@ -4,6 +4,7 @@ import {faSearch, faTrash, faUndo} from '@fortawesome/free-solid-svg-icons';
 import {CompleteConversionApiService} from '../../services/complete-conversion-api/complete-conversion-api.service';
 import {CompleteConversion} from '../../shared/models/complete-conversion.model';
 import {CompleteConversionJob} from '../../shared/models/complete-conversion-job.model';
+import {JsonWorkflowJob} from '../../shared/models/json-workflow-job.model';
 
 @Component({
   selector: 'app-complete-conversion-overview',
@@ -64,5 +65,15 @@ export class CompleteConversionOverviewComponent implements OnInit {
     this.selectedCompleteConversion = null;
     this.completeConversions = [];
     this.completeConversionJobs = [];
+  }
+
+  conversionFailedDueToChunks(completeConversion: CompleteConversion) {
+    return completeConversion.status === 'failed' &&
+      _.some(completeConversion.jobs, job => job.status === 'failed' && job.exception.indexOf('Chunks are not valid.') !== -1);
+  }
+
+  conversionJobFailedDueToChunks(completeConversionJob: CompleteConversionJob) {
+    return completeConversionJob.status === 'failed' &&
+      completeConversionJob.exception.indexOf('Chunks are not valid.') !== -1;
   }
 }

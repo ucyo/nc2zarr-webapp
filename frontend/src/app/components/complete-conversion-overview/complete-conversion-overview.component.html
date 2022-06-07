@@ -29,6 +29,9 @@
         <fa-icon [icon]="faSearch"
                  (click)="selectedCompleteConversion = completeConversion; completeConversionJobs = completeConversion.jobs; failedJob = null"></fa-icon>
         <fa-icon [icon]="faTrash" (click)="deleteCompleteConversion(completeConversion.id)"></fa-icon>
+        <ng-template #tipChunking>Chunks are invalid</ng-template>
+        <span [ngbTooltip]="tipChunking" class="badge badge-secondary"
+              *ngIf="conversionFailedDueToChunks(completeConversion)">Chunks invalid</span>
       </td>
     </tr>
     </tbody>
@@ -78,6 +81,9 @@
           <ng-template #tipRetry>Retry</ng-template>
           <fa-icon [ngbTooltip]="tipRetry" [icon]="faUndo" *ngIf="completeConversionJob.status === 'failed'"
                    (click)="retry(completeConversionJob.id)"></fa-icon>
+          <ng-template #tipChunking>Chunks are invalid</ng-template>
+          <span [ngbTooltip]="tipChunking" class="badge badge-secondary"
+                *ngIf="conversionJobFailedDueToChunks(completeConversionJob)">Chunks invalid</span>
         </td>
       </tr>
       </tbody>

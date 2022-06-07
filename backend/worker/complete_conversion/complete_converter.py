@@ -1,9 +1,12 @@
+import json
 import os.path
 
 import fsspec
 import numpy as np
 import xarray as xr
 import zarr
+
+from worker.complete_conversion.complete_conversion_error import CompleteConversionError
 
 fs = fsspec.filesystem('file')
 DEFAULT_ZARR_COMPRESSOR = zarr.Blosc(cname="zstd", clevel=3, shuffle=2)
@@ -61,7 +64,12 @@ def nc_to_zarr(
     if auto_chunks:
         dataset = dataset.chunk("auto")
     else:
-        dataset = dataset.chunk(chunk_dictionary)
+        try:
+            dataset = dataset.chunk(chunk_dictionary)
+        except ValueError as _:
+            f = list(dataset.coords)
+            raise CompleteConversionError(
+                "Chunks are not valid.\nChunks requested: " + json.dumps(chunk_dictionary) + "\nViable options are: " + str(f))
 
     # Setting encoding
     encoding = {}
