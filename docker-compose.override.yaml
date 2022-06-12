@@ -17,6 +17,7 @@ services:
       - ./backend:/home/python/code
       - ./input:/home/python/input
       - ./output:/home/python/output
+      - ./intake-catalogs:/home/python/intake-catalogs
     deploy:
       replicas: 4
 
@@ -24,3 +25,4 @@ services:
     volumes:
       - ./input:/input
       - ./output:/output
+      - ./intake-catalogs:/intake-catalogs

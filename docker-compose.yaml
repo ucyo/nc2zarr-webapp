@@ -46,6 +46,7 @@ services:
       - NC2ZARR_PROD=True
       - NC2ZARR_INPUT=/input
       - NC2ZARR_OUTPUT=/output
+      - NC2ZARR_INTAKE_CATALOGS=/intake-catalogs
     depends_on:
       - redis
       - worker

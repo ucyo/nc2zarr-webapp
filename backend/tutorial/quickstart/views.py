@@ -150,6 +150,23 @@ def api_complete_conversion(request):
                                                         complete_conversion=complete_conversion)
         complete_conversion_job.save()
 
+        intake_job = queue.enqueue(
+            "worker.intake_catalog_generation.intake_catalog_generator.generate_intake_catalog_for_zarr",
+            relative_output_path,
+            file_name,
+            result_ttl=None,
+            failure_ttl=None,
+            depends_on=job)
+
+        intake_complete_conversion_job = CompleteConversionJob(job_id=intake_job.id,
+                                                               type='intake',
+                                                               file_name='INTAKE',
+                                                               input='-',
+                                                               output=os.path.join(relative_output_path, file_name),
+                                                               created_at=timezone.now(),
+                                                               complete_conversion=complete_conversion)
+        intake_complete_conversion_job.save()
+
     return Response()
 
 
@@ -285,8 +302,8 @@ def process(complete_conversion: CompleteConversion, index: int, redis: Redis,
             complete_conversion_serializer: CompleteConversionSerializer):
     complete_conversion_jobs = list(CompleteConversionJob.objects.filter(complete_conversion=complete_conversion.id))
 
-    states = ["no-jobs", "no-rq-job-available", "failed", "started", "queued", "finished"]
-    current_state = 0 if len(complete_conversion_jobs) == 0 else 5
+    states = ["no-jobs", "no-rq-job-available", "failed", "started", "queued", "deferred", "finished"]
+    current_state = 0 if len(complete_conversion_jobs) == 0 else 6
 
     jobs = Job.fetch_many(list(map(lambda j: j.job_id, complete_conversion_jobs)), connection=redis)
 
