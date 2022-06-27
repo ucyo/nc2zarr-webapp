@@ -37,6 +37,7 @@ export class CompleteConversionCreateComponent implements OnInit {
   readonly defaultForPacked: boolean = false;
   readonly defaultForUniqueTimes: boolean = true;
   readonly defaultForPrecision: number = 0.01;
+  readonly defaultForRemoveExistingFolder: boolean = false;
 
   constructor(private fileExplorerApiService: FileExplorerApiService, private completeConversionApiService: CompleteConversionApiService) {
   }
@@ -124,7 +125,8 @@ export class CompleteConversionCreateComponent implements OnInit {
       autoChunks: this.defaultForAutoChunks,
       packed: this.defaultForPacked,
       uniqueTimes: this.defaultForUniqueTimes,
-      precision: this.defaultForPrecision
+      precision: this.defaultForPrecision,
+      removeExistingFolder: this.defaultForRemoveExistingFolder
     };
 
     this.updateTreeviewComponent();
@@ -154,6 +156,7 @@ export class CompleteConversionCreateComponent implements OnInit {
     this.completeConversionCreation.packed = this.defaultForPacked;
     this.completeConversionCreation.uniqueTimes = this.defaultForUniqueTimes;
     this.completeConversionCreation.precision = this.defaultForPrecision;
+    this.completeConversionCreation.removeExistingFolder = this.defaultForRemoveExistingFolder;
 
     this.checkIfConvertButtonCanBeActivated();
   }

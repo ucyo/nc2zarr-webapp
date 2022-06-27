@@ -6,7 +6,8 @@ export interface CompleteConversionCreation {
   autoChunks: boolean;
   packed: boolean;
   uniqueTimes: boolean;
-  name: string,
-  input: string[],
-  output: string
+  removeExistingFolder: boolean;
+  name: string;
+  input: string[];
+  output: string;
 }

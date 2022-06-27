@@ -30,6 +30,7 @@ class CompleteConversion(models.Model):
     auto_chunks = models.BooleanField(default=True)
     packed = models.BooleanField(default=True)
     unique_times = models.BooleanField(default=True)
+    remove_existing_folder = models.BooleanField(default=False)
     chunks = models.CharField(null=True, max_length=1000)
 
 

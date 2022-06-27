@@ -119,15 +119,38 @@ def api_complete_conversion(request):
         auto_chunks=request.data['autoChunks'],
         packed=request.data['packed'],
         unique_times=request.data['uniqueTimes'],
+        remove_existing_folder=request.data['removeExistingFolder'],
         chunks=json.dumps(chunk_dictionary)
     )
     complete_conversion.save()
 
+    relative_output_path = os.path.relpath(request.data['output'], os.environ['NC2ZARR_OUTPUT'])
+
     for absolute_path in request.data['input']:
         relative_input_path = os.path.relpath(absolute_path, os.environ['NC2ZARR_INPUT'])
-        relative_output_path = os.path.relpath(request.data['output'], os.environ['NC2ZARR_OUTPUT'])
-
         file_name = os.path.basename(absolute_path)
+
+        os.path.join(relative_output_path, file_name + ".zarr")
+
+        job_remove_existing_folder = None
+
+        if complete_conversion.remove_existing_folder and os.path.exists(
+                os.path.join(request.data['output'], file_name + ".zarr")):
+            job_remove_existing_folder = queue.enqueue(
+                "worker.complete_conversion.complete_converter.remove_existing_folder",
+                relative_output_path,
+                file_name,
+                result_ttl=None,
+                failure_ttl=None)
+
+            complete_conversion_job = CompleteConversionJob(job_id=job_remove_existing_folder.id,
+                                                            type='remove-existing-folder',
+                                                            file_name='REMOVE EXISTING FOLDER',
+                                                            input=relative_output_path,
+                                                            output='-',
+                                                            created_at=timezone.now(),
+                                                            complete_conversion=complete_conversion)
+            complete_conversion_job.save()
 
         job = queue.enqueue("worker.complete_conversion.complete_converter.complete_conversion",
                             relative_input_path,
@@ -138,6 +161,7 @@ def api_complete_conversion(request):
                             complete_conversion.packed,
                             complete_conversion.unique_times,
                             chunk_dictionary,
+                            depends_on=job_remove_existing_folder,
                             result_ttl=None,
                             failure_ttl=None)
 

@@ -1,5 +1,6 @@
 import json
 import os.path
+import shutil
 
 import fsspec
 import numpy as np
@@ -10,6 +11,15 @@ from worker.complete_conversion.complete_conversion_error import CompleteConvers
 
 fs = fsspec.filesystem('file')
 DEFAULT_ZARR_COMPRESSOR = zarr.Blosc(cname="zstd", clevel=3, shuffle=2)
+
+
+def remove_existing_folder(relative_output_path, file_name):
+    relative_output_path = build_relative_output_path(relative_output_path)
+    out_path = os.path.join(relative_output_path, file_name + ".zarr")
+
+    if os.path.exists(out_path):
+        print('Remove existing Zarr store: ' + out_path)
+        shutil.rmtree(out_path)
 
 
 def complete_conversion(relative_input_path,
@@ -69,7 +79,8 @@ def nc_to_zarr(
         except ValueError as _:
             f = list(dataset.coords)
             raise CompleteConversionError(
-                "Chunks are not valid.\nChunks requested: " + json.dumps(chunk_dictionary) + "\nViable options are: " + str(f))
+                "Chunks are not valid.\nChunks requested: " + json.dumps(
+                    chunk_dictionary) + "\nViable options are: " + str(f))
 
     # Setting encoding
     encoding = {}

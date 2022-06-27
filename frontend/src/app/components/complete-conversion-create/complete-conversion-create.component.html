@@ -33,6 +33,14 @@
              (ngModelChange)="checkIfConvertButtonCanBeActivated()">
     </div>
 
+    <div class="form-check" style="margin-bottom: 15px;"
+         title="If the output folder already exists, it will be deleted before the conversion.">
+      <input type="checkbox" class="form-check-input" id="removeExistingFolder"
+             [(ngModel)]="completeConversionCreation.removeExistingFolder"
+             (ngModelChange)="checkIfConvertButtonCanBeActivated()">
+      <label class="form-check-label" for="removeExistingFolder">Remove existing folder</label>
+    </div>
+
     <div class="form-check" style="margin-bottom: 15px;">
       <input type="checkbox" class="form-check-input" id="showAdvancedConfiguration"
              [(ngModel)]="useAdvancedConfiguration"
