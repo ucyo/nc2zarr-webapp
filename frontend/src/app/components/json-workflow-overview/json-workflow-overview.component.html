@@ -29,7 +29,9 @@
         <fa-icon [icon]="faSearch"
                  (click)="selectedJsonWorkflow = jsonWorkflow; jsonWorkflowJobs = jsonWorkflow.jobs; failedJob = null"></fa-icon>
         <fa-icon [icon]="faTrash" (click)="deleteJsonWorkflow(jsonWorkflow.id)"></fa-icon>
-
+        <fa-icon
+          *ngIf="jsonWorkflow.status === 'started' || jsonWorkflow.status === 'queued' || jsonWorkflow.status == 'deferred'"
+          [icon]="faStop" (click)="killJsonWorkflow(jsonWorkflow.id)" ngbTooltip="Kill"></fa-icon>
         <ng-template #tipNetCDF3>NetCDF3 is not supported</ng-template>
         <span [ngbTooltip]="tipNetCDF3" class="badge badge-secondary" *ngIf="workflowFailedAsNetCDF3(jsonWorkflow)">NetCDF3</span>
       </td>

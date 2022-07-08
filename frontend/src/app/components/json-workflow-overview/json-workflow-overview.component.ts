@@ -1,5 +1,5 @@
 import {Component, OnInit} from '@angular/core';
-import {faSearch, faTrash, faUndo} from '@fortawesome/free-solid-svg-icons';
+import {faSearch, faTrash, faUndo, faStop} from '@fortawesome/free-solid-svg-icons';
 import * as _ from 'lodash';
 import {JsonWorkflow} from '../../shared/models/json-workflow.model';
 import {JsonWorkflowApiService} from '../../services/json-workflow-api/json-workflow-api.service';
@@ -15,6 +15,7 @@ export class JsonWorkflowOverviewComponent implements OnInit {
   faSearch = faSearch;
   faTrash = faTrash;
   faUndo = faUndo;
+  faStop = faStop;
 
   jsonWorkflows: JsonWorkflow[];
   selectedJsonWorkflow: JsonWorkflow;
@@ -75,5 +76,9 @@ export class JsonWorkflowOverviewComponent implements OnInit {
   workflowFailedAsNetCDF3(jsonWorkflow: JsonWorkflow) {
     return jsonWorkflow.status === 'failed' &&
       _.some(jsonWorkflow.jobs, job => job.status === 'failed' && job.exception && job.exception.indexOf('NETCDF3') !== -1);
+  }
+
+  killJsonWorkflow(id: number) {
+    this.jsonWorkflowApiService.kill(id).subscribe(() => this.reloadJsonWorkflows());
   }
 }

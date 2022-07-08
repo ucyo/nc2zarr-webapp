@@ -27,6 +27,8 @@ export class JsonWorkflowCreateComponent implements OnInit {
   formErrors: string[] = [];
   jsonWorkflowCreation: JsonWorkflowCreation;
 
+  readonly defaultForTimeout: number = 600;
+
   constructor(private fileExplorerApiService: FileExplorerApiService, private jsonWorkflowApiService: JsonWorkflowApiService) {
   }
 
@@ -104,7 +106,8 @@ export class JsonWorkflowCreateComponent implements OnInit {
       combine: false,
       outputFileName: '',
       input: [],
-      output: null
+      output: null,
+      timeout: this.defaultForTimeout
     };
 
     this.updateTreeviewComponent();

@@ -19,7 +19,8 @@ class JsonWorkflowJobSerializer(serializers.ModelSerializer):
 class CompleteConversionSerializer(serializers.ModelSerializer):
     class Meta:
         model = CompleteConversion
-        fields = ['id', 'name', 'created_at']
+        fields = ['id', 'name', 'created_at', 'status', 'precision', 'auto_chunks', 'packed', 'unique_times',
+                  'remove_existing_folder', 'chunks']
 
 
 class CompleteConversionJobSerializer(serializers.ModelSerializer):

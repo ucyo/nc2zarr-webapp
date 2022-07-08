@@ -67,7 +67,7 @@ def nc_to_zarr(
         dtype = {v: dtype for v in dataset.data_vars}
 
     # Removing duplicate time indexes
-    if unique_times:
+    if unique_times and dataset.hasattr('time'):
         dataset = remove_duplicate_times(dataset)
 
     # Chunking dataset, will define chunking in zarr

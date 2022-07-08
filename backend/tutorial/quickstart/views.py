@@ -66,7 +66,7 @@ def process_json_workflow(json_workflow: JsonWorkflow, index: int, redis: Redis,
                           json_workflow_serializer: JsonWorkflowSerializer):
     json_workflow_jobs = list(JsonWorkflowJob.objects.filter(json_workflow=json_workflow.id))
 
-    states = ["no-jobs", "no-rq-job-available", "failed", "started", "queued", "deferred", "finished"]
+    states = ["no-jobs", "no-rq-job-available", "failed", "started", "queued", "deferred", "canceled", "finished"]
     current_state = 0 if len(json_workflow_jobs) == 0 else (len(states) + 1)
 
     jobs = Job.fetch_many(list(map(lambda j: j.job_id, json_workflow_jobs)), connection=redis)
@@ -120,7 +120,8 @@ def api_complete_conversion(request):
         packed=request.data['packed'],
         unique_times=request.data['uniqueTimes'],
         remove_existing_folder=request.data['removeExistingFolder'],
-        chunks=json.dumps(chunk_dictionary)
+        chunks=json.dumps(chunk_dictionary),
+        timeout=request.data['timeout']
     )
     complete_conversion.save()
 
@@ -141,7 +142,8 @@ def api_complete_conversion(request):
                 relative_output_path,
                 file_name,
                 result_ttl=None,
-                failure_ttl=None)
+                failure_ttl=None,
+                job_timeout=complete_conversion.timeout)
 
             complete_conversion_job = CompleteConversionJob(job_id=job_remove_existing_folder.id,
                                                             type='remove-existing-folder',
@@ -161,6 +163,7 @@ def api_complete_conversion(request):
                             complete_conversion.packed,
                             complete_conversion.unique_times,
                             chunk_dictionary,
+                            job_timeout=complete_conversion.timeout,
                             depends_on=job_remove_existing_folder,
                             result_ttl=None,
                             failure_ttl=None)
@@ -180,7 +183,8 @@ def api_complete_conversion(request):
             file_name,
             result_ttl=None,
             failure_ttl=None,
-            depends_on=job)
+            depends_on=job,
+            job_timeout=complete_conversion.timeout)
 
         intake_complete_conversion_job = CompleteConversionJob(job_id=intake_job.id,
                                                                type='intake',
@@ -204,7 +208,11 @@ def api_json_workflow(request):
     redis = open_redis_connection()
     queue = Queue(connection=redis)
 
-    json_workflow = JsonWorkflow(name=request.data['name'], created_at=timezone.now(), combine=request.data['combine'])
+    json_workflow = JsonWorkflow(
+        name=request.data['name'],
+        created_at=timezone.now(),
+        combine=request.data['combine'],
+        timeout=request.data['timeout'])
     json_workflow.save()
 
     relative_input_paths_for_combine = []
@@ -226,7 +234,8 @@ def api_json_workflow(request):
                             relative_output_path,
                             file_name,
                             result_ttl=None,
-                            failure_ttl=None)
+                            failure_ttl=None,
+                            job_timeout=json_workflow.timeout)
         jobs.append(job)
 
         json_workflow_job = JsonWorkflowJob(job_id=job.id,
@@ -247,7 +256,8 @@ def api_json_workflow(request):
                             output_file_name,
                             result_ttl=None,
                             failure_ttl=None,
-                            depends_on=jobs)
+                            depends_on=jobs,
+                            job_timeout=json_workflow.timeout)
 
         json_workflow_job = JsonWorkflowJob(job_id=job.id,
                                             type='combine',
@@ -257,6 +267,24 @@ def api_json_workflow(request):
                                             created_at=timezone.now(),
                                             json_workflow=json_workflow)
         json_workflow_job.save()
+
+        intake_job = queue.enqueue(
+            "worker.intake_catalog_generation.intake_catalog_generator.generate_intake_catalog_for_json_metadata",
+            relative_output_path,
+            output_file_name,
+            result_ttl=None,
+            failure_ttl=None,
+            depends_on=job,
+            job_timeout=json_workflow.timeout)
+
+        intake_json_workflow_job = JsonWorkflowJob(job_id=intake_job.id,
+                                                   type='intake',
+                                                   file_name='INTAKE',
+                                                   input='-',
+                                                   output=os.path.join(relative_output_path, output_file_name),
+                                                   created_at=timezone.now(),
+                                                   json_workflow=json_workflow)
+        intake_json_workflow_job.save()
 
         for relative_input_path in relative_input_paths_for_combine:
             clean_up_job = queue.enqueue("worker.json_workflow.json_converter.clean_up_after_combine",
@@ -326,8 +354,8 @@ def process(complete_conversion: CompleteConversion, index: int, redis: Redis,
             complete_conversion_serializer: CompleteConversionSerializer):
     complete_conversion_jobs = list(CompleteConversionJob.objects.filter(complete_conversion=complete_conversion.id))
 
-    states = ["no-jobs", "no-rq-job-available", "failed", "started", "queued", "deferred", "finished"]
-    current_state = 0 if len(complete_conversion_jobs) == 0 else 6
+    states = ["no-jobs", "no-rq-job-available", "failed", "started", "queued", "deferred", "canceled", "finished"]
+    current_state = 0 if len(complete_conversion_jobs) == 0 else (len(states) + 1)
 
     jobs = Job.fetch_many(list(map(lambda j: j.job_id, complete_conversion_jobs)), connection=redis)
 
@@ -359,3 +387,24 @@ def process(complete_conversion: CompleteConversion, index: int, redis: Redis,
 
     complete_conversion_job_serializer = CompleteConversionJobSerializer(complete_conversion_jobs, many=True)
     complete_conversion_serializer.data[index]['jobs'] = complete_conversion_job_serializer.data
+
+
+@api_view(['POST'])
+def api_kill_json_workflow(request, pk: int):
+    jobs = list(JsonWorkflowJob.objects.filter(json_workflow=pk))
+    stop_all_jobs(list(map(lambda c: c.job_id, jobs)))
+    return Response()
+
+
+@api_view(['POST'])
+def api_kill_complete_conversion(request, pk: int):
+    jobs = list(CompleteConversionJob.objects.filter(complete_conversion=pk))
+    stop_all_jobs(list(map(lambda c: c.job_id, jobs)))
+    return Response()
+
+
+def stop_all_jobs(job_ids: list):
+    redis = open_redis_connection()
+    for job in Job.fetch_many(job_ids, connection=redis):
+        if job.get_status() in ['deferred', 'queued', 'started']:
+            job.cancel()

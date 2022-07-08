@@ -1,10 +1,9 @@
 import {Component, OnInit} from '@angular/core';
 import * as _ from 'lodash';
-import {faSearch, faTrash, faUndo} from '@fortawesome/free-solid-svg-icons';
+import {faSearch, faTrash, faUndo, faStop} from '@fortawesome/free-solid-svg-icons';
 import {CompleteConversionApiService} from '../../services/complete-conversion-api/complete-conversion-api.service';
 import {CompleteConversion} from '../../shared/models/complete-conversion.model';
 import {CompleteConversionJob} from '../../shared/models/complete-conversion-job.model';
-import {JsonWorkflowJob} from '../../shared/models/json-workflow-job.model';
 
 @Component({
   selector: 'app-complete-conversion-overview',
@@ -16,6 +15,7 @@ export class CompleteConversionOverviewComponent implements OnInit {
   faSearch = faSearch;
   faTrash = faTrash;
   faUndo = faUndo;
+  faStop = faStop;
 
   completeConversions: CompleteConversion[];
   selectedCompleteConversion: CompleteConversion;
@@ -75,5 +75,9 @@ export class CompleteConversionOverviewComponent implements OnInit {
   conversionJobFailedDueToChunks(completeConversionJob: CompleteConversionJob) {
     return completeConversionJob.status === 'failed' &&
       completeConversionJob.exception.indexOf('Chunks are not valid.') !== -1;
+  }
+
+  killCompleteConversion(id: number) {
+    this.completeConversionApiService.kill(id).subscribe(() => this.reloadCompleteConversions());
   }
 }

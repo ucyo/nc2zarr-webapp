@@ -14,6 +14,28 @@ def generate_intake_catalog_for_zarr(relative_input_path, file_name):
         f.write(source.yaml())
 
 
+def generate_intake_catalog_for_json_metadata(relative_input_path, file_name):
+    relative_input_path = build_relative_input_path(relative_input_path)
+
+    if not file_name.endswith('.json'):
+        file_name = file_name + '.json'
+
+    path = os.path.join(relative_input_path, file_name)
+
+    source = intake.open_zarr(
+        "reference://",
+        storage_options={
+            "fo": path,
+            "remote_protocol": "file"
+        },
+        consolidated=False
+    )
+    source.discover()
+
+    with open(build_relative_intake_catalog_path(f'{file_name}.yaml'), 'w') as f:
+        f.write(source.yaml())
+
+
 def build_relative_intake_catalog_path(path: str) -> str:
     return build_relative_path(path, 'intake-catalogs')
 

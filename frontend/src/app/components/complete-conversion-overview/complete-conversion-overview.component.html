@@ -27,8 +27,13 @@
       <td>{{completeConversion.created_at | date:'short'}}</td>
       <td>
         <fa-icon [icon]="faSearch"
-                 (click)="selectedCompleteConversion = completeConversion; completeConversionJobs = completeConversion.jobs; failedJob = null"></fa-icon>
-        <fa-icon [icon]="faTrash" (click)="deleteCompleteConversion(completeConversion.id)"></fa-icon>
+                 (click)="selectedCompleteConversion = completeConversion; completeConversionJobs = completeConversion.jobs; failedJob = null"
+                 ngbTooltip="Inspect"></fa-icon>
+        <fa-icon [icon]="faTrash" (click)="deleteCompleteConversion(completeConversion.id)"
+                 ngbTooltip="Delete"></fa-icon>
+        <fa-icon
+          *ngIf="completeConversion.status === 'started' || completeConversion.status === 'queued' || completeConversion.status == 'deferred'"
+          [icon]="faStop" (click)="killCompleteConversion(completeConversion.id)" ngbTooltip="Kill"></fa-icon>
         <ng-template #tipChunking>Chunks are invalid</ng-template>
         <span [ngbTooltip]="tipChunking" class="badge badge-secondary"
               *ngIf="conversionFailedDueToChunks(completeConversion)">Chunks invalid</span>
@@ -42,7 +47,7 @@
 
   <h4>Complete conversion - {{selectedCompleteConversion.name}} ({{selectedCompleteConversion.id}})
 
-    <button (click)="selectedCompleteConversion = null; selectedCompleteConversion = null; failedJob = null"
+    <button (click)="selectedCompleteConversion = null; selectedCompleteConversion = null; failedJob = null; completeConversionJobs = null;"
             type="button"
             class="btn btn-dark float-right">
       Close
@@ -75,14 +80,11 @@
         <td>{{completeConversionJob.ended_at | date:'short'}}</td>
         <td>{{completeConversionJob.created_at | date:'short'}}</td>
         <td>
-          <ng-template #tipShowException>Show exception</ng-template>
-          <fa-icon [ngbTooltip]="tipShowException" [icon]="faSearch" *ngIf="completeConversionJob.status === 'failed'"
+          <fa-icon ngbTooltip="Show exception" [icon]="faSearch" *ngIf="completeConversionJob.status === 'failed'"
                    (click)="failedJob = completeConversionJob"></fa-icon>
-          <ng-template #tipRetry>Retry</ng-template>
-          <fa-icon [ngbTooltip]="tipRetry" [icon]="faUndo" *ngIf="completeConversionJob.status === 'failed'"
+          <fa-icon ngbTooltip="Retry" [icon]="faUndo" *ngIf="completeConversionJob.status === 'failed'"
                    (click)="retry(completeConversionJob.id)"></fa-icon>
-          <ng-template #tipChunking>Chunks are invalid</ng-template>
-          <span [ngbTooltip]="tipChunking" class="badge badge-secondary"
+          <span ngbTooltip="Chunks are invalid" class="badge badge-secondary"
                 *ngIf="conversionJobFailedDueToChunks(completeConversionJob)">Chunks invalid</span>
         </td>
       </tr>

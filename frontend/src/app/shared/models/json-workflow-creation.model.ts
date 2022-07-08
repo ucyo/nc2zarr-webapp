@@ -1,7 +1,8 @@
 export interface JsonWorkflowCreation {
-  name: string,
-  combine: boolean,
-  outputFileName: string,
-  input: string[],
-  output: string
+  name: string;
+  combine: boolean;
+  outputFileName: string;
+  input: string[];
+  output: string;
+  timeout: number;
 }

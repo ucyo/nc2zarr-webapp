@@ -6,6 +6,7 @@ class JsonWorkflow(models.Model):
     created_at = models.DateTimeField()
     status = models.CharField(null=True, max_length=30)
     combine = models.BooleanField(default=False)
+    timeout = models.IntegerField(default=600)
 
 
 class JsonWorkflowJob(models.Model):
@@ -32,6 +33,7 @@ class CompleteConversion(models.Model):
     unique_times = models.BooleanField(default=True)
     remove_existing_folder = models.BooleanField(default=False)
     chunks = models.CharField(null=True, max_length=1000)
+    timeout = models.IntegerField(default=600)
 
 
 class CompleteConversionJob(models.Model):

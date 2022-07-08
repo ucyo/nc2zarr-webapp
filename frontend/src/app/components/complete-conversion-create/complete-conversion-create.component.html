@@ -73,6 +73,13 @@
                (ngModelChange)="checkIfConvertButtonCanBeActivated()">
       </div>
 
+      <div class="form-group">
+        <label for="timeout">Timeout (in s):</label>
+        <input class="form-control" id="timeout" placeholder="Enter timeout" type="number"
+               [(ngModel)]="completeConversionCreation.timeout"
+               (ngModelChange)="checkIfConvertButtonCanBeActivated()">
+      </div>
+
       <div class="form-check" style="margin-bottom: 15px;">
         <input type="checkbox" class="form-check-input" id="autoChunks"
                [(ngModel)]="completeConversionCreation.autoChunks"

@@ -26,4 +26,8 @@ export class CompleteConversionApiService {
   restart(id: number) {
     return this.httpClient.post('complete-conversion/job/' + id, {});
   }
+
+  kill(id: number) {
+    return this.httpClient.post('complete-conversion/kill/' + id, {});
+  }
 }
