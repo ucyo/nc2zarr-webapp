@@ -7,6 +7,7 @@ class JsonWorkflow(models.Model):
     status = models.CharField(null=True, max_length=30)
     combine = models.BooleanField(default=False)
     timeout = models.IntegerField(default=600)
+    intake_source = models.TextField(default=None, null=True)
 
 
 class JsonWorkflowJob(models.Model):
@@ -34,6 +35,7 @@ class CompleteConversion(models.Model):
     remove_existing_folder = models.BooleanField(default=False)
     chunks = models.CharField(null=True, max_length=1000)
     timeout = models.IntegerField(default=600)
+    intake_source = models.TextField(default=None, null=True)
 
 
 class CompleteConversionJob(models.Model):
@@ -48,3 +50,18 @@ class CompleteConversionJob(models.Model):
     exception = models.CharField(null=True, max_length=10000)
     complete_conversion = models.ForeignKey(CompleteConversion, on_delete=models.CASCADE)
     status = models.CharField(null=True, max_length=30)
+
+
+class IntakeCatalog(models.Model):
+    name = models.CharField(max_length=200)
+    created_at = models.DateTimeField()
+    updated_at = models.DateTimeField()
+
+
+class IntakeSource(models.Model):
+    name = models.CharField(max_length=200)
+    created_at = models.DateTimeField()
+    updated_at = models.DateTimeField()
+    intake_catalog = models.ForeignKey(IntakeCatalog, on_delete=models.CASCADE)
+    json_workflow = models.ForeignKey(JsonWorkflow, on_delete=models.CASCADE)
+    complete_conversion = models.ForeignKey(CompleteConversion, on_delete=models.CASCADE)

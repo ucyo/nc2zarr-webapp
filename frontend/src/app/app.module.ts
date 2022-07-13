@@ -25,6 +25,9 @@ import {JsonWorkflowCreateComponent} from './components/json-workflow-create/jso
 import {TruncatePipe} from './pipes/truncate-pipe/truncate.pipe';
 import { CompleteConversionCreateComponent } from './components/complete-conversion-create/complete-conversion-create.component';
 import { CompleteConversionOverviewComponent } from './components/complete-conversion-overview/complete-conversion-overview.component';
+import { IntakeCatalogComponent } from './views/intake-catalog/intake-catalog.component';
+import { IntakeCatalogOverviewComponent } from './components/intake-catalog-overview/intake-catalog-overview.component';
+import { IntakeCatalogCreateComponent } from './components/intake-catalog-create/intake-catalog-create.component';
 
 registerLocaleData(localeDe, localeDeExtra);
 
@@ -39,7 +42,10 @@ registerLocaleData(localeDe, localeDeExtra);
     JsonWorkflowCreateComponent,
     TruncatePipe,
     CompleteConversionCreateComponent,
-    CompleteConversionOverviewComponent
+    CompleteConversionOverviewComponent,
+    IntakeCatalogComponent,
+    IntakeCatalogOverviewComponent,
+    IntakeCatalogCreateComponent
   ],
   imports: [
     BrowserModule,

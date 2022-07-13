@@ -1,20 +1,23 @@
 import os.path
 
 import intake
+import requests
 
 
-def generate_intake_catalog_for_zarr(relative_input_path, file_name):
+def generate_intake_catalog_for_zarr(relative_input_path: str, file_name: str, complete_conversion_id: int):
     relative_input_path = build_relative_input_path(relative_input_path)
     path = os.path.join(relative_input_path, file_name + ".zarr")
 
     source = intake.open_zarr(path, decode_times=False)
     source.discover()
 
-    with open(build_relative_intake_catalog_path(f'{file_name}.yaml'), 'w') as f:
-        f.write(source.yaml())
+    response = requests.put(
+        'http://host.docker.internal:8001/complete-conversion/intake-source/' + str(complete_conversion_id),
+        data={'yaml': source.yaml()})
+    response.raise_for_status()
 
 
-def generate_intake_catalog_for_json_metadata(relative_input_path, file_name):
+def generate_intake_catalog_for_json_metadata(relative_input_path: str, file_name: str, json_workflow_id: int):
     relative_input_path = build_relative_input_path(relative_input_path)
 
     if not file_name.endswith('.json'):
@@ -32,8 +35,9 @@ def generate_intake_catalog_for_json_metadata(relative_input_path, file_name):
     )
     source.discover()
 
-    with open(build_relative_intake_catalog_path(f'{file_name}.yaml'), 'w') as f:
-        f.write(source.yaml())
+    response = requests.put('http://host.docker.internal:8001/json-workflow/intake-source/' + str(json_workflow_id),
+                            data={'yaml': source.yaml()})
+    response.raise_for_status()
 
 
 def build_relative_intake_catalog_path(path: str) -> str:

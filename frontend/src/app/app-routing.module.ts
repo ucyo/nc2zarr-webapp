@@ -2,6 +2,7 @@ import {NgModule} from '@angular/core';
 import {ActivatedRoute, NavigationEnd, Router, RouterModule, Routes} from '@angular/router';
 import {JsonWorkflowComponent} from './views/json-workflow/json-workflow.component';
 import {CompleteConversionComponent} from './views/complete-conversion/complete-conversion.component';
+import {IntakeCatalogComponent} from './views/intake-catalog/intake-catalog.component';
 
 const routes: Routes = [
   {
@@ -18,6 +19,11 @@ const routes: Routes = [
     path: 'complete-conversion',
     pathMatch: 'full',
     component: CompleteConversionComponent,
+  },
+  {
+    path: 'intake-catalog',
+    pathMatch: 'full',
+    component: IntakeCatalogComponent,
   }
 ];
 

@@ -11,9 +11,10 @@ from rest_framework.response import Response
 from rq import Queue
 from rq.job import Job
 
-from db.models import JsonWorkflow, JsonWorkflowJob, CompleteConversion, CompleteConversionJob
+from db.models import JsonWorkflow, JsonWorkflowJob, CompleteConversion, CompleteConversionJob, IntakeCatalog, \
+    IntakeSource
 from db.serializers import JsonWorkflowSerializer, JsonWorkflowJobSerializer, CompleteConversionSerializer, \
-    CompleteConversionJobSerializer
+    CompleteConversionJobSerializer, IntakeCatalogSerializer, IntakeSourceSerializer
 from tutorial.file_explorer.list_folders_and_files import list_folders_and_files, list_folders
 
 
@@ -272,6 +273,7 @@ def api_json_workflow(request):
             "worker.intake_catalog_generation.intake_catalog_generator.generate_intake_catalog_for_json_metadata",
             relative_output_path,
             output_file_name,
+            json_workflow.id,
             result_ttl=None,
             failure_ttl=None,
             depends_on=job,
@@ -408,3 +410,47 @@ def stop_all_jobs(job_ids: list):
     for job in Job.fetch_many(job_ids, connection=redis):
         if job.get_status() in ['deferred', 'queued', 'started']:
             job.cancel()
+
+
+@api_view(['PUT'])
+def set_intake_source_of_json_workflow(request, pk: int):
+    json_workflow = JsonWorkflow.objects.get(id=pk)
+    json_workflow.intake_source = request.data['yaml']
+    json_workflow.save()
+    return Response()
+
+
+@api_view(['PUT'])
+def set_intake_source_of_complete_conversion(request, pk: int):
+    complete_conversion = CompleteConversion.objects.get(id=pk)
+    complete_conversion.intake_source = request.data['yaml']
+    complete_conversion.save()
+    return Response()
+
+
+def append_intake_sources(intake_catalog: IntakeCatalog,
+                          index: int,
+                          intake_catalog_serializer: IntakeCatalogSerializer):
+    intake_sources = list(IntakeSource.objects.filter(intake_catalog=intake_catalog.id))
+    intake_source_serializer = IntakeSourceSerializer(intake_sources, many=True)
+    intake_catalog_serializer.data[index]['sources'] = intake_source_serializer.data
+
+
+@api_view(['GET'])
+def api_list_intake_catalogs(request):
+    intake_catalogs = IntakeCatalog.objects.all()
+    intake_catalog_serializer = IntakeCatalogSerializer(intake_catalogs, many=True)
+
+    redis = open_redis_connection()
+    i = 0
+    for intake_catalog in intake_catalogs:
+        append_intake_sources(intake_catalogs, i, intake_catalog_serializer)
+        i = i + 1
+
+    return JsonResponse(intake_catalog_serializer.data, safe=False)
+
+
+@api_view(['DELETE'])
+def api_delete_intake_catalogs(request, pk: int):
+    IntakeCatalog.objects.filter(id=pk).delete()
+    return Response()

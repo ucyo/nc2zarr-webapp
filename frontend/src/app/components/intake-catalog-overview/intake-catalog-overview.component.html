@@ -1,0 +1,33 @@
+<h2>Overview
+  <button (click)="create()" type="button" class="btn btn-dark float-right">
+    Create
+  </button>
+</h2>
+
+<div class="overflow-auto table-responsive">
+  <table class="table">
+    <thead>
+    <tr>
+      <th scope="col">Name</th>
+      <th scope="col">ID</th>
+      <th scope="col">Created at</th>
+      <th scope="col">Updated at</th>
+      <th scope="col">Sources</th>
+      <th></th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr *ngFor="let intakeCatalog of intakeCatalogs">
+      <th scope="row">{{intakeCatalog.name}}</th>
+      <td>{{intakeCatalog.id}}</td>
+      <td>{{intakeCatalog.created_at | date:'short'}}</td>
+      <td>{{intakeCatalog.updated_at | date:'short'}}</td>
+      <td>{{formatSources(intakeCatalog)}}</td>
+      <td>
+        <fa-icon [icon]="faTrash" (click)="edit(intakeCatalog)" ngbTooltip="Edit"></fa-icon>
+        <fa-icon [icon]="faTrash" (click)="delete(intakeCatalog.id)" ngbTooltip="Delete"></fa-icon>
+      </td>
+    </tr>
+    </tbody>
+  </table>
+</div>

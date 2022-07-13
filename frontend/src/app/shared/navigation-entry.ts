@@ -13,6 +13,7 @@ export class NavigationEntry {
     return [
       new NavigationEntry('/json-workflow', 'JSON Workflow'),
       new NavigationEntry('/complete-conversion', 'Complete Conversion'),
+      new NavigationEntry('/intake-catalog', 'Intake Catalog'),
     ];
   }
 }
