@@ -1,0 +1,80 @@
+<h2>{{intakeCatalogCreate.id > 0 ? 'Edit' : 'Create'}}
+  <button (click)="cancel()" type="button" class="btn btn-dark float-right">
+    Cancel
+  </button>
+</h2>
+
+
+<div class="row" *ngIf="intakeCatalogCreate">
+  <div class="col-6">
+
+    <div class="form-group">
+      <label for="name">Intake catalog name:</label>
+      <input class="form-control" id="name" placeholder="Enter name of Intake catalog"
+             [(ngModel)]="intakeCatalogCreate.name" (ngModelChange)="checkIfSaveButtonCanBeActivated()">
+    </div>
+  </div>
+
+  <div class="col-6"></div>
+
+  <div class="col-12">
+    <table class="table">
+      <thead>
+      <tr>
+        <th>Name</th>
+        <th style="width: 60%">Source</th>
+        <th></th>
+      </tr>
+      </thead>
+
+      <tbody>
+      <tr *ngFor="let source of intakeCatalogCreate.sources; let i=index;">
+        <td>
+          <input class="form-control"
+                 [(ngModel)]="source.name"
+                 placeholder="Enter name of Intake source"
+                 (ngModelChange)="checkIfSaveButtonCanBeActivated()">
+        </td>
+        <td>
+          <ng-select [(ngModel)]="selectedPossibleSources[i]" (change)="onSourceSelected($event, i)"
+                     [compareWith]="compareWith">
+            <ng-option *ngFor="let s of possibleSources"
+                       [value]="{'json_workflow': s.json_workflow, 'complete_conversion': s.complete_conversion}">
+              {{s.type + ' - ' + s.name + ' | ' + (s.created_at | date:'short')}}</ng-option>
+          </ng-select>
+        </td>
+        <td style="padding-top: 20px;">
+          <fa-icon [icon]="faMinus"
+                   (click)="intakeCatalogCreate.sources.splice(i, 1); selectedPossibleSources.splice(i, 1); checkIfSaveButtonCanBeActivated();"></fa-icon>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+
+    <button class="btn btn-secondary" (click)="addNewSource()" style="margin-bottom: 20px;">
+      Add source
+    </button>
+
+    <hr>
+
+    <button type="button" class="btn btn-primary" style="margin-bottom: 40px;" [disabled]="formErrors.length > 0" (click)="createOrUpdate()">
+      {{intakeCatalogCreate.id > 0 ? 'Save' : 'Create'}}
+    </button>
+  </div>
+</div>
+
+<div *ngIf="formErrors.length > 0" style="margin-top: 20px;">
+
+  <table class="table table-sm">
+    <thead>
+    <tr>
+      <th>Necessary steps</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr *ngFor="let formError of formErrors">
+      <td class="text-danger">{{formError}}</td>
+    </tr>
+    </tbody>
+  </table>
+</div>

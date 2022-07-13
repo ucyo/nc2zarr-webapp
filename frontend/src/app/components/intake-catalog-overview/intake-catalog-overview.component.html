@@ -24,7 +24,7 @@
       <td>{{intakeCatalog.updated_at | date:'short'}}</td>
       <td>{{formatSources(intakeCatalog)}}</td>
       <td>
-        <fa-icon [icon]="faTrash" (click)="edit(intakeCatalog)" ngbTooltip="Edit"></fa-icon>
+        <fa-icon [icon]="faPencilAlt" (click)="edit(intakeCatalog)" ngbTooltip="Edit"></fa-icon>
         <fa-icon [icon]="faTrash" (click)="delete(intakeCatalog.id)" ngbTooltip="Delete"></fa-icon>
       </td>
     </tr>

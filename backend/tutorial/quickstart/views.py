@@ -182,6 +182,7 @@ def api_complete_conversion(request):
             "worker.intake_catalog_generation.intake_catalog_generator.generate_intake_catalog_for_zarr",
             relative_output_path,
             file_name,
+            complete_conversion.id,
             result_ttl=None,
             failure_ttl=None,
             depends_on=job,
@@ -441,10 +442,9 @@ def api_list_intake_catalogs(request):
     intake_catalogs = IntakeCatalog.objects.all()
     intake_catalog_serializer = IntakeCatalogSerializer(intake_catalogs, many=True)
 
-    redis = open_redis_connection()
     i = 0
     for intake_catalog in intake_catalogs:
-        append_intake_sources(intake_catalogs, i, intake_catalog_serializer)
+        append_intake_sources(intake_catalog, i, intake_catalog_serializer)
         i = i + 1
 
     return JsonResponse(intake_catalog_serializer.data, safe=False)
@@ -453,4 +453,69 @@ def api_list_intake_catalogs(request):
 @api_view(['DELETE'])
 def api_delete_intake_catalogs(request, pk: int):
     IntakeCatalog.objects.filter(id=pk).delete()
+    return Response()
+
+
+@api_view(['POST'])
+def api_create_intake_catalog(request):
+    intake_catalog = IntakeCatalog(
+        name=request.data['name'],
+        created_at=timezone.now(),
+        updated_at=timezone.now())
+    intake_catalog.save()
+
+    for source in request.data['sources']:
+
+        json_workflow = None
+        complete_conversion = None
+
+        if source['json_workflow'] > 0:
+            json_workflow = JsonWorkflow.objects.get(id=source['json_workflow'])
+
+        if source['complete_conversion'] > 0:
+            complete_conversion = CompleteConversion.objects.get(id=source['complete_conversion'])
+
+        intake_source = IntakeSource(
+            name=source['name'],
+            created_at=timezone.now(),
+            updated_at=timezone.now(),
+            intake_catalog=intake_catalog,
+            json_workflow=json_workflow,
+            complete_conversion=complete_conversion
+        )
+        intake_source.save()
+
+    return Response()
+
+
+@api_view(['PUT'])
+def api_modify_intake_catalog(request, pk: int):
+    intake_catalog = IntakeCatalog.objects.get(id=pk)
+    intake_catalog.name = request.data['name']
+    intake_catalog.updated_at = timezone.now()
+    intake_catalog.save()
+
+    IntakeSource.objects.filter(intake_catalog=intake_catalog.id).delete()
+
+    for source in request.data['sources']:
+
+        json_workflow = None
+        complete_conversion = None
+
+        if isinstance(source['json_workflow'], int) and source['json_workflow'] > 0:
+            json_workflow = JsonWorkflow.objects.get(id=source['json_workflow'])
+
+        if isinstance(source['complete_conversion'], int) and source['complete_conversion'] > 0:
+            complete_conversion = CompleteConversion.objects.get(id=source['complete_conversion'])
+
+        intake_source = IntakeSource(
+            name=source['name'],
+            created_at=timezone.now(),
+            updated_at=timezone.now(),
+            intake_catalog=intake_catalog,
+            json_workflow=json_workflow,
+            complete_conversion=complete_conversion
+        )
+        intake_source.save()
+
     return Response()

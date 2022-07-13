@@ -53,7 +53,7 @@ class CompleteConversionJob(models.Model):
 
 
 class IntakeCatalog(models.Model):
-    name = models.CharField(max_length=200)
+    name = models.CharField(max_length=200, unique=True)
     created_at = models.DateTimeField()
     updated_at = models.DateTimeField()
 
@@ -63,5 +63,5 @@ class IntakeSource(models.Model):
     created_at = models.DateTimeField()
     updated_at = models.DateTimeField()
     intake_catalog = models.ForeignKey(IntakeCatalog, on_delete=models.CASCADE)
-    json_workflow = models.ForeignKey(JsonWorkflow, on_delete=models.CASCADE)
-    complete_conversion = models.ForeignKey(CompleteConversion, on_delete=models.CASCADE)
+    json_workflow = models.ForeignKey(JsonWorkflow, on_delete=models.CASCADE, null=True)
+    complete_conversion = models.ForeignKey(CompleteConversion, on_delete=models.CASCADE, null=True)

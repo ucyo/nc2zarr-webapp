@@ -6,4 +6,5 @@ export interface CompleteConversion {
   status: string;
   created_at: Date;
   jobs: CompleteConversionJob[];
+  intake_source: string;
 }

@@ -6,4 +6,5 @@ export interface JsonWorkflow {
   status: string;
   created_at: Date;
   jobs: JsonWorkflowJob[];
+  intake_source: string;
 }

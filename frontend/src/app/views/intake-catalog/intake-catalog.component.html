@@ -2,6 +2,6 @@
 
 <p>Create Intake catalogs to make your data easily accessible by others.</p>
 
-<app-intake-catalog-overview [(currentIntakeCatalog)]="currentIntakeCatalog"></app-intake-catalog-overview>
-<app-intake-catalog-create *ngIf="currentIntakeCatalog"
-                           [(currentIntakeCatalog)]="currentIntakeCatalog"></app-intake-catalog-create>
+<app-intake-catalog-overview [(intakeCatalogCreate)]="intakeCatalogCreate"></app-intake-catalog-overview>
+<app-intake-catalog-create *ngIf="intakeCatalogCreate"
+                           [(intakeCatalogCreate)]="intakeCatalogCreate"></app-intake-catalog-create>

@@ -23,11 +23,12 @@ import localeDeExtra from '@angular/common/locales/extra/de';
 import {JsonWorkflowOverviewComponent} from './components/json-workflow-overview/json-workflow-overview.component';
 import {JsonWorkflowCreateComponent} from './components/json-workflow-create/json-workflow-create.component';
 import {TruncatePipe} from './pipes/truncate-pipe/truncate.pipe';
-import { CompleteConversionCreateComponent } from './components/complete-conversion-create/complete-conversion-create.component';
-import { CompleteConversionOverviewComponent } from './components/complete-conversion-overview/complete-conversion-overview.component';
-import { IntakeCatalogComponent } from './views/intake-catalog/intake-catalog.component';
-import { IntakeCatalogOverviewComponent } from './components/intake-catalog-overview/intake-catalog-overview.component';
-import { IntakeCatalogCreateComponent } from './components/intake-catalog-create/intake-catalog-create.component';
+import {CompleteConversionCreateComponent} from './components/complete-conversion-create/complete-conversion-create.component';
+import {CompleteConversionOverviewComponent} from './components/complete-conversion-overview/complete-conversion-overview.component';
+import {IntakeCatalogComponent} from './views/intake-catalog/intake-catalog.component';
+import {IntakeCatalogOverviewComponent} from './components/intake-catalog-overview/intake-catalog-overview.component';
+import {IntakeCatalogCreateComponent} from './components/intake-catalog-create/intake-catalog-create.component';
+import {NgSelectModule} from '@ng-select/ng-select';
 
 registerLocaleData(localeDe, localeDeExtra);
 
@@ -63,7 +64,8 @@ registerLocaleData(localeDe, localeDeExtra);
     }),
     FormsModule,
     NgbModule,
-    TreeviewModule.forRoot()
+    TreeviewModule.forRoot(),
+    NgSelectModule
   ],
   providers: [
     {

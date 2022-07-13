@@ -1,8 +1,10 @@
-import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
+import {Component, EventEmitter, Injectable, Input, OnInit, Output} from '@angular/core';
 import {IntakeCatalogApiService} from '../../services/intake-catalog-api/intake-catalog-api.service';
 import * as _ from 'lodash';
 import {IntakeCatalog} from '../../shared/models/intake-catalog.model';
-import {faSearch, faStop, faTrash, faUndo} from '@fortawesome/free-solid-svg-icons';
+import {faPencilAlt, faSearch, faStop, faTrash} from '@fortawesome/free-solid-svg-icons';
+import {IntakeCatalogCreate} from '../../shared/models/intake-catalog/intake-catalog.create.model';
+import {IntakeSourceCreate} from '../../shared/models/intake-catalog/intake-source.create.model';
 
 @Component({
   selector: 'app-intake-catalog-overview',
@@ -11,13 +13,13 @@ import {faSearch, faStop, faTrash, faUndo} from '@fortawesome/free-solid-svg-ico
 })
 export class IntakeCatalogOverviewComponent implements OnInit {
 
-  @Input() currentIntakeCatalog: IntakeCatalog;
-  @Output() currentIntakeCatalogChange = new EventEmitter<IntakeCatalog>();
+  @Input() intakeCatalogCreate: IntakeCatalogCreate;
+  @Output() intakeCatalogCreateChange = new EventEmitter<IntakeCatalogCreate>();
 
   faSearch = faSearch;
   faTrash = faTrash;
-  faUndo = faUndo;
   faStop = faStop;
+  faPencilAlt = faPencilAlt;
 
   public intakeCatalogs: IntakeCatalog[];
 
@@ -35,26 +37,48 @@ export class IntakeCatalogOverviewComponent implements OnInit {
   }
 
   formatSources(intakeCatalog: IntakeCatalog) {
-    _.chain(intakeCatalog.sources).map((s) => s.name).join(', ').value();
+    return _.chain(intakeCatalog.sources).map((s) => s.name).join(', ').value();
   }
 
   create() {
-    this.currentIntakeCatalog = {
-      created_at: null,
+    this.intakeCatalogCreate = {
       id: 0,
       name: '',
       sources: [],
-      updated_at: null
     };
-    this.currentIntakeCatalogChange.emit(this.currentIntakeCatalog);
+    this.intakeCatalogCreateChange.emit(this.intakeCatalogCreate);
   }
 
   edit(intakeCatalog: IntakeCatalog) {
-    this.currentIntakeCatalog = intakeCatalog;
-    this.currentIntakeCatalogChange.emit(this.currentIntakeCatalog);
+
+    let intakeSourceCreates: IntakeSourceCreate[] = [];
+
+    for (let source of intakeCatalog.sources) {
+      intakeSourceCreates.push({
+        id: source.id,
+        name: source.name,
+        json_workflow: source.json_workflow,
+        complete_conversion: source.complete_conversion
+      })
+    }
+
+    this.intakeCatalogCreate = {
+      id: intakeCatalog.id,
+      name: intakeCatalog.name,
+      sources: intakeSourceCreates
+    };
+    this.intakeCatalogCreateChange.emit(this.intakeCatalogCreate);
   }
 
   delete(id: number) {
-    this.intakeCatalogApiService.delete(id).subscribe(() => this.reloadIntakeCatalogs());
+
+    this.intakeCatalogApiService.delete(id).subscribe(() => {
+      this.reloadIntakeCatalogs();
+
+      if (this.intakeCatalogCreate.id === id) {
+        this.intakeCatalogCreate = null;
+        this.intakeCatalogCreateChange.emit(this.intakeCatalogCreate);
+      }
+    });
   }
 }

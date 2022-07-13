@@ -30,7 +30,7 @@ export class JsonWorkflowOverviewComponent implements OnInit {
   }
 
   reloadJsonWorkflows() {
-    this.jsonWorkflowApiService.loadWorkflows().subscribe(jsonWorkflows => {
+    this.jsonWorkflowApiService.load().subscribe(jsonWorkflows => {
       this.jsonWorkflows = _.orderBy(jsonWorkflows, 'id', 'desc');
     });
   }

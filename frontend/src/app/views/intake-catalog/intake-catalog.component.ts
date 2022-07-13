@@ -1,5 +1,5 @@
-import {Component, Input, OnInit} from '@angular/core';
-import {IntakeCatalog} from '../../shared/models/intake-catalog.model';
+import {Component, OnInit} from '@angular/core';
+import {IntakeCatalogCreate} from '../../shared/models/intake-catalog/intake-catalog.create.model';
 
 @Component({
   selector: 'app-intake-catalog',
@@ -8,9 +8,10 @@ import {IntakeCatalog} from '../../shared/models/intake-catalog.model';
 })
 export class IntakeCatalogComponent implements OnInit {
 
-  currentIntakeCatalog: IntakeCatalog;
+  intakeCatalogCreate: IntakeCatalogCreate;
 
-  constructor() { }
+  constructor() {
+  }
 
   ngOnInit(): void {
   }

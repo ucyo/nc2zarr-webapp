@@ -40,4 +40,4 @@ class IntakeCatalogSerializer(serializers.ModelSerializer):
 class IntakeSourceSerializer(serializers.ModelSerializer):
     class Meta:
         model = IntakeSource
-        fields = ['id', 'name', 'created_at', 'updated_at', 'intake_catalog']
+        fields = ['id', 'name', 'created_at', 'updated_at', 'intake_catalog', 'json_workflow', 'complete_conversion']

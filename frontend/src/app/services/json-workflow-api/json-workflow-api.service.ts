@@ -15,7 +15,7 @@ export class JsonWorkflowApiService {
     return this.httpClient.post('json-workflow', jsonWorkflowCreation);
   }
 
-  loadWorkflows() {
+  load() {
     return this.httpClient.get<JsonWorkflow[]>('json-workflow/list');
   }
 

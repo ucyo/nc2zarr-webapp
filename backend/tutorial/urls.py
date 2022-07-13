@@ -38,5 +38,7 @@ urlpatterns = [
     path('complete-conversion/list', views.api_list_complete_conversions, name='Complete Conversion - List'),
     path('intake-catalog/list', views.api_list_intake_catalogs, name='Intake Catalog - List'),
     path('intake-catalog/<int:pk>', views.api_delete_intake_catalogs, name='Intake Catalog - Delete'),
+    path('intake-catalog', views.api_create_intake_catalog, name='Intake Catalog - Create'),
+    path('intake-catalog/update/<int:pk>', views.api_modify_intake_catalog, name='Intake Catalog - Modify'),
     path('admin/', admin.site.urls),
 ]

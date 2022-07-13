@@ -50,6 +50,17 @@ services:
     depends_on:
       - redis
       - worker
+      - postgres
+
+  postgres:
+    image: postgres
+    restart: always
+    volumes:
+      - ./postgres:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_PASSWORD=development
 
   angular-frontend:
     build: ./frontend
