@@ -1,7 +1,9 @@
 import json
 import os
 import pathlib
+from collections.abc import Sequence
 
+import yaml
 from django.db.transaction import atomic
 from django.http import JsonResponse
 from django.utils import timezone
@@ -456,6 +458,35 @@ def api_delete_intake_catalogs(request, pk: int):
     return Response()
 
 
+class SafeLoaderIgnoreUnknown(yaml.SafeLoader):
+    def ignore_unknown(self, node):
+        return None
+
+
+def build_intake_catalog_yaml(intake_catalog: IntakeCatalog,
+                              intake_sources: Sequence[IntakeSource],
+                              yamls: Sequence[str]):
+    path = os.path.join(os.environ['NC2ZARR_INTAKE_CATALOGS'], intake_catalog.name + '.yaml')
+
+    if os.path.exists(path):
+        os.remove(path)
+
+    catalog = {
+        'sources': {}
+    }
+
+    SafeLoaderIgnoreUnknown.add_constructor(None, SafeLoaderIgnoreUnknown.ignore_unknown)
+
+    i = 0
+    for intake_source in intake_sources:
+        catalog['sources'][intake_source.name] = yaml.load(yamls[i], Loader=SafeLoaderIgnoreUnknown)['sources']['zarr']
+        i = i + 1
+
+    with open(path, 'w') as file:
+        yaml.dump(catalog, file)
+
+
+@atomic()
 @api_view(['POST'])
 def api_create_intake_catalog(request):
     intake_catalog = IntakeCatalog(
@@ -464,16 +495,21 @@ def api_create_intake_catalog(request):
         updated_at=timezone.now())
     intake_catalog.save()
 
+    intake_sources = []
+    yamls = []
+
     for source in request.data['sources']:
 
         json_workflow = None
         complete_conversion = None
 
-        if source['json_workflow'] > 0:
+        if isinstance(source['json_workflow'], int) and source['json_workflow'] > 0:
             json_workflow = JsonWorkflow.objects.get(id=source['json_workflow'])
+            yamls.append(json_workflow.intake_source)
 
-        if source['complete_conversion'] > 0:
+        if isinstance(source['complete_conversion'], int) and source['complete_conversion'] > 0:
             complete_conversion = CompleteConversion.objects.get(id=source['complete_conversion'])
+            yamls.append(complete_conversion.intake_source)
 
         intake_source = IntakeSource(
             name=source['name'],
@@ -484,6 +520,9 @@ def api_create_intake_catalog(request):
             complete_conversion=complete_conversion
         )
         intake_source.save()
+        intake_sources.append(intake_source)
+
+    build_intake_catalog_yaml(intake_catalog, intake_sources, yamls)
 
     return Response()
 
@@ -497,6 +536,9 @@ def api_modify_intake_catalog(request, pk: int):
 
     IntakeSource.objects.filter(intake_catalog=intake_catalog.id).delete()
 
+    intake_sources = []
+    yamls = []
+
     for source in request.data['sources']:
 
         json_workflow = None
@@ -504,9 +546,11 @@ def api_modify_intake_catalog(request, pk: int):
 
         if isinstance(source['json_workflow'], int) and source['json_workflow'] > 0:
             json_workflow = JsonWorkflow.objects.get(id=source['json_workflow'])
+            yamls.append(json_workflow.intake_source)
 
         if isinstance(source['complete_conversion'], int) and source['complete_conversion'] > 0:
             complete_conversion = CompleteConversion.objects.get(id=source['complete_conversion'])
+            yamls.append(complete_conversion.intake_source)
 
         intake_source = IntakeSource(
             name=source['name'],
@@ -517,5 +561,8 @@ def api_modify_intake_catalog(request, pk: int):
             complete_conversion=complete_conversion
         )
         intake_source.save()
+        intake_sources.append(intake_source)
+
+    build_intake_catalog_yaml(intake_catalog, intake_sources, yamls)
 
     return Response()
