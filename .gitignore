@@ -228,3 +228,5 @@ input
 output
 intake-catalogs
 postgres
+docker-compose.prod.yaml
+settings_local.py

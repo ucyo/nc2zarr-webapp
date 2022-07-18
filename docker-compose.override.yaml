@@ -3,8 +3,28 @@ version: "3.8"
 services:
 
   rq-dashboard:
+    image: ucyo/rq-dashboard:latest
+    init: true
+    env_file:
+      - ./env/.rq.env
+    depends_on:
+      - redis
+      - worker
     ports:
       - "9181:9181"
+
+  rebrow:
+    image: marian/rebrow
+    init: true
+    ports:
+      - "5001:5001"
+
+  jupyter:
+    build: ./jupyter
+    volumes:
+      - .:/home/jovyan/work
+    ports:
+      - "8888:8888"
 
   redis:
     volumes:
@@ -14,10 +34,9 @@ services:
 
   worker:
     volumes:
-      - ./backend:/home/python/code
+      - ./intake-catalogs:/home/python/intake-catalogs
       - ./input:/home/python/input
       - ./output:/home/python/output
-      - ./intake-catalogs:/home/python/intake-catalogs
     deploy:
       replicas: 4
       resources:
@@ -30,3 +49,30 @@ services:
       - ./input:/input
       - ./output:/output
       - ./intake-catalogs:/intake-catalogs
+    ports:
+      - "8000:8000"
+    environment:
+      - NC2ZARR_PROD=True
+      - NC2ZARR_INPUT=/input
+      - NC2ZARR_OUTPUT=/output
+      - NC2ZARR_INTAKE_CATALOGS=/intake-catalogs
+
+  angular-frontend:
+    ports:
+      - "80:80"
+
+  postgres:
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_PASSWORD=development
+
+  nginx:
+    image: nginx
+    ports:
+      - "8080:80"
+    volumes:
+      - ./:/usr/share/nginx/html
+    environment:
+      - NGINX_HOST=localhost
+      - NGINX_PORT=80

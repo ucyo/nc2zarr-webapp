@@ -6,18 +6,11 @@ services:
     image: redis:5
     init: true
 
-  rq-dashboard:
-    image: ucyo/rq-dashboard:latest
-    init: true
-    env_file:
-      - ./env/.rq.env
-    depends_on:
-      - redis
-      - worker
-
   worker:
     init: true
     image: worker-image
+    volumes:
+      - ./backend:/home/python/code
     build:
       context: ./backend/worker
       dockerfile: Dockerfile
@@ -29,47 +22,24 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
 
-  rebrow:
-    image: marian/rebrow
-    init: true
-    ports:
-      - "5001:5001"
-
   django:
     build: ./backend
     command: python manage.py runserver 0.0.0.0:8000
     volumes:
       - ./backend:/code
-    ports:
-      - "8000:8000"
-    environment:
-      - NC2ZARR_PROD=True
-      - NC2ZARR_INPUT=/input
-      - NC2ZARR_OUTPUT=/output
-      - NC2ZARR_INTAKE_CATALOGS=/intake-catalogs
     depends_on:
       - redis
       - worker
       - postgres
+    environment:
+      - NC2ZARR_PROD=True
 
   postgres:
     image: postgres
     restart: always
-    volumes:
-      - ./postgres:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
-    environment:
-      - POSTGRES_PASSWORD=development
 
   angular-frontend:
     build: ./frontend
-    ports:
-      - "80:80"
 
-  jupyter:
-    build: ./jupyter
-    volumes:
-      - .:/home/jovyan/work
-    ports:
-      - "8888:8888"
+  nginx:
+    image: nginx
