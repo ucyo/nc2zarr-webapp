@@ -35,7 +35,12 @@ def generate_intake_catalog_for_json_metadata(relative_input_path: str, file_nam
     )
     source.discover()
 
-    response = requests.put('http://host.docker.internal:8001/json-workflow/intake-source/' + str(json_workflow_id),
+    domain = "host.docker.internal:8001"
+
+    if os.environ["NC2ZARR_PROD"] == "True":
+        domain = "django:8000"
+
+    response = requests.put('http://' + domain + '/json-workflow/intake-source/' + str(json_workflow_id),
                             data={'yaml': source.yaml()})
     response.raise_for_status()
 

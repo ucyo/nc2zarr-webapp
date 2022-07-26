@@ -6,12 +6,7 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-ins
     python3 python3-pip python3-venv python-is-python3 curl ca-certificates wait-for-it libpq-dev python3-dev build-essential gettext-base && \
     rm -rf /var/lib/apt/lists/*
 
-RUN groupadd --gid 1000 python && \
-    useradd --uid 1000 --gid python --shell /bin/bash --create-home python && \
-    usermod -aG sudo python
-
-USER 1000
-RUN mkdir /home/python/code
+RUN mkdir -p /home/python/code
 WORKDIR /home/python/code
 
 RUN python -m pip install rq zarr xarray redis fsspec h5py kerchunk ujson netCDF4 Jinja2 dask numpy cftime intake[complete] intake-xarray
