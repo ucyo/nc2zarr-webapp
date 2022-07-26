@@ -36,7 +36,7 @@ def generate_intake_catalog_for_json_metadata(absolute_input_path: str, file_nam
         "reference://",
         storage_options={
             "fo": path,
-            "remote_protocol": "file"
+            "remote_protocol": "http"
         },
         consolidated=False
     )
