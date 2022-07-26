@@ -1,3 +1,4 @@
+import os
 import os.path
 
 import fsspec
@@ -12,8 +13,8 @@ fs = fsspec.filesystem('file')
 
 
 def gen_json(relative_input_path, relative_output_path, file_name):
-    relative_input_path = build_relative_input_path(relative_input_path)
-    relative_output_path = build_relative_output_path(relative_output_path)
+    relative_input_path = build_input_path(relative_input_path)
+    relative_output_path = build_output_path(relative_output_path)
 
     try:
         with fsspec.open(relative_input_path, 'rb') as f:
@@ -30,7 +31,7 @@ def gen_json(relative_input_path, relative_output_path, file_name):
 def combine_json(relative_input_paths, relative_output_path, file_name):
     # The input files are in the output folder for the combine process.
     # Therefore, we want to build input paths like '../output/foo.json'.
-    input_paths = list(map(build_relative_output_path, relative_input_paths))
+    input_paths = list(map(build_output_path, relative_input_paths))
 
     multi_zarr_to_zarr = MultiZarrToZarr(
         input_paths,
@@ -41,24 +42,24 @@ def combine_json(relative_input_paths, relative_output_path, file_name):
     if not file_name.endswith('.json'):
         file_name = file_name + '.json'
 
-    output_path = os.path.join(build_relative_output_path(relative_output_path), file_name)
+    output_path = os.path.join(build_output_path(relative_output_path), file_name)
     multi_zarr_to_zarr.translate(output_path)
 
 
 def clean_up_after_combine(relative_input_path):
     # The input files are in the output folder for the combine process.
     # Therefore, we want to build input paths like '../output/foo.json'.
-    input_path = build_relative_output_path(relative_input_path)
+    input_path = build_output_path(relative_input_path)
     os.remove(input_path)
 
 
-def build_relative_input_path(path: str) -> str:
-    return build_relative_path(path, 'input')
+def build_input_path(path: str) -> str:
+    return build_absolute_path(os.environ['NC2ZARR_INPUT'], path)
 
 
-def build_relative_output_path(path: str) -> str:
-    return build_relative_path(path, 'output')
+def build_output_path(path: str) -> str:
+    return build_absolute_path(os.environ['NC2ZARR_OUTPUT'], path)
 
 
-def build_relative_path(path: str, folder_name: str) -> str:
-    return os.path.join("..", folder_name, path).replace("\\", "/")
+def build_absolute_path(prefix: str, suffix: str) -> str:
+    return os.path.join(prefix, suffix).replace("\\", "/")
