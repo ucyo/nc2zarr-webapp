@@ -9,4 +9,4 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-ins
 RUN mkdir -p /home/python/code
 WORKDIR /home/python/code
 
-RUN python -m pip install rq zarr xarray redis fsspec h5py kerchunk ujson netCDF4 Jinja2 dask numpy cftime intake[complete] intake-xarray
+RUN python -m pip install rq zarr xarray redis fsspec h5py kerchunk ujson netCDF4 Jinja2 dask numpy cftime intake[complete] intake-xarray aiohttp
