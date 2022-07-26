@@ -7,7 +7,8 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-ins
     rm -rf /var/lib/apt/lists/*
 
 RUN groupadd --gid 1000 python && \
-    useradd  --uid 1000 --gid python --shell /bin/bash --create-home python
+    useradd --uid 1000 --gid python --shell /bin/bash --create-home python && \
+    usermod -aG sudo python
 
 USER 1000
 RUN mkdir /home/python/code
