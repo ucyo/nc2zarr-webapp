@@ -11,8 +11,13 @@ def generate_intake_catalog_for_zarr(relative_input_path: str, file_name: str, c
     source = intake.open_zarr(path, decode_times=False)
     source.discover()
 
+    domain = "host.docker.internal:8001"
+
+    if os.environ["NC2ZARR_PROD"] == "True":
+        domain = "django:8000"
+
     response = requests.put(
-        'http://host.docker.internal:8001/complete-conversion/intake-source/' + str(complete_conversion_id),
+        'http://' + domain + '/complete-conversion/intake-source/' + str(complete_conversion_id),
         data={'yaml': source.yaml()})
     response.raise_for_status()
 
