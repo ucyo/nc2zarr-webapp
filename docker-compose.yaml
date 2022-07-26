@@ -42,4 +42,4 @@ services:
     build: ./frontend
 
   nginx:
-    image: nginx
+    build: ./nginx
