@@ -26,11 +26,17 @@ FROM nginx:latest
 # Copy the build output to replace the default nginx contents.
 COPY --from=build /usr/local/app/dist/nc2zarr-frontend /usr/share/nginx/html
 
+ARG NC2ZARR_BACKEND_URL
+ARG NC2ZARR_CONTENT_URL
+
+ENV NC2ZARR_BACKEND_URL $NC2ZARR_BACKEND_URL
+ENV NC2ZARR_CONTENT_URL $NC2ZARR_CONTENT_URL
+
 RUN apt-get update && \
     apt-get install -y moreutils
 
 WORKDIR /usr/share/nginx/html
-RUN for f in main.*.js; do envsubst '$NC2ZARR_WEB_INTERFACE_URL,$NC2ZARR_CONTENT_URL' < $f | sponge $f; done
+RUN for f in main.*.js; do envsubst '$NC2ZARR_BACKEND_URL,$NC2ZARR_CONTENT_URL' < $f | sponge $f; done
 
 COPY /nginx.conf  /etc/nginx/conf.d/default.conf
 
