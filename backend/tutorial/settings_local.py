@@ -6,7 +6,7 @@ DATABASES = {
         'NAME': 'postgres',
         'USER': 'postgres',
         'PASSWORD': os.environ['NC2ZARR_POSTGRES_PASSWORD'],
-        'HOST': 'postgres',
+        'HOST': os.environ['NC2ZARR_POSTGRES_HOST'],
         'PORT': '5432',
     }
 }

@@ -57,6 +57,7 @@ services:
       - NC2ZARR_OUTPUT=/output
       - NC2ZARR_INTAKE_CATALOGS=/intake-catalogs
       - NC2ZARR_POSTGRES_PASSWORD=development
+      - NC2ZARR_POSTGRES_HOST=postgres
       - NC2ZARR_URL=localhost
 
   angular-frontend:
@@ -64,7 +65,7 @@ services:
       - "80:80"
     environment:
       - NC2ZARR_WEB_INTERFACE_URL=http://localhost
-      - NC2ZARR_CONTENT_URL=http://localhost:8080
+      - NC2ZARR_CONTENT_URL=http://localhost:8080/intake-catalogs
 
   postgres:
     ports:

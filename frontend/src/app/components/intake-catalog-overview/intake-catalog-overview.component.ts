@@ -2,9 +2,10 @@ import {Component, EventEmitter, Injectable, Input, OnInit, Output} from '@angul
 import {IntakeCatalogApiService} from '../../services/intake-catalog-api/intake-catalog-api.service';
 import * as _ from 'lodash';
 import {IntakeCatalog} from '../../shared/models/intake-catalog.model';
-import {faPencilAlt, faSearch, faStop, faTrash} from '@fortawesome/free-solid-svg-icons';
+import {faPencilAlt, faSearch, faStop, faTrash, faLink} from '@fortawesome/free-solid-svg-icons';
 import {IntakeCatalogCreate} from '../../shared/models/intake-catalog/intake-catalog.create.model';
 import {IntakeSourceCreate} from '../../shared/models/intake-catalog/intake-source.create.model';
+import {environment} from '../../../environments/environment';
 
 @Component({
   selector: 'app-intake-catalog-overview',
@@ -20,6 +21,7 @@ export class IntakeCatalogOverviewComponent implements OnInit {
   faTrash = faTrash;
   faStop = faStop;
   faPencilAlt = faPencilAlt;
+  faLink = faLink;
 
   public intakeCatalogs: IntakeCatalog[];
 
@@ -80,5 +82,20 @@ export class IntakeCatalogOverviewComponent implements OnInit {
         this.intakeCatalogCreateChange.emit(this.intakeCatalogCreate);
       }
     });
+  }
+
+  copyLink(name: string) {
+    // https://stackoverflow.com/questions/49102724/angular-5-copy-to-clipboard
+    const selBox = document.createElement('textarea');
+    selBox.style.position = 'fixed';
+    selBox.style.left = '0';
+    selBox.style.top = '0';
+    selBox.style.opacity = '0';
+    selBox.value = `${environment.contentUrl}/${name}.yaml`;
+    document.body.appendChild(selBox);
+    selBox.focus();
+    selBox.select();
+    document.execCommand('copy');
+    document.body.removeChild(selBox);
   }
 }

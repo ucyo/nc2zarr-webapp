@@ -26,6 +26,7 @@
       <td>
         <fa-icon [icon]="faPencilAlt" (click)="edit(intakeCatalog)" ngbTooltip="Edit"></fa-icon>
         <fa-icon [icon]="faTrash" (click)="delete(intakeCatalog.id)" ngbTooltip="Delete"></fa-icon>
+        <fa-icon [icon]="faLink" (click)="copyLink(intakeCatalog.name)" ngbTooltip="Copy link"></fa-icon>
       </td>
     </tr>
     </tbody>
