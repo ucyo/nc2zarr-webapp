@@ -13,32 +13,109 @@ With the **JSON workflow** you can generate JSON metadata for NetCDF4 files to a
 
 ### Complete conversion
 
-With the complete conversion a NetCDF 4 can be converted to Zarr.
+With the complete conversion a NetCDF4 can be converted to Zarr.
+
+## Intake
+
+Both workflow results can be shared and used via [Intake](https://github.com/intake/intake).
+To load Intake catalogs use the following Python code in Jupyter:
+
+```python
+import intake
+
+# Add the Intake catalog to the Intake GUI
+intake.gui.add('http://<content-url>/<catalog-name>.yaml')
+
+# Select a data source
+intake.gui
+
+# Load the data source
+intake.gui.item().read_chunked()
+```
+
 
 ## Getting Started
 
-The project can be started with Docker. You can specify the amount of asynchronous workers with the last parameter:
-
-```bash
-docker-compose up -d --build --scale worker=4
-```
-
-Then open your browser and enter `http://localhost/`.
-
-### Configuration
-
-To configure the application the `docker-compose.override.yaml` must be overwritten. Set the volumes for input and output folders to the desired folders on your machine:
+To run the project you need [Docker](https://www.docker.com/) and [Docker Compose](https://docs.docker.com/compose/).
+Create a file name `docker-compose.prod.yaml` in the root folder of the project and fill in the following content. 
+Replace any placeholder in `<...>`.
 
 ```yaml
-worker:
-  volumes:
-    - /your/input/path:/home/python/input
-    - /your/output/path:/home/python/output
+version: "3.8"
 
-django:
-  volumes:
-    - /your/input/path:/input
-    - /your/output/path:/output
+services:
+
+  angular-frontend:
+    ports:
+      - "80:80"
+    build:
+      args:
+        - NC2ZARR_BACKEND_URL=http://<domain>:<backend-port>
+        - NC2ZARR_CONTENT_URL=http://<domain>:<nginx-port>/intake-catalogs
+
+  redis:
+    volumes:
+      - <redis-directory>:/data
+    expose:
+      - "6379"
+
+  django:
+    ports:
+      - "<backend-port>:<backend-port>"
+    volumes:
+      - <input-directory>:/root/public/input
+      - <output-directory>:/root/public/output
+      - <intake-catalogs-directory>:/root/public/intake-catalogs
+    environment:
+      - NC2ZARR_INPUT=/root/public/input
+      - NC2ZARR_OUTPUT=/root/public/output
+      - NC2ZARR_INTAKE_CATALOGS=/root/public/intake-catalogs
+      - NC2ZARR_POSTGRES_PASSWORD=<postgres-password>
+      - NC2ZARR_POSTGRES_HOST=postgres
+      - NC2ZARR_URL=<domain>
+
+  worker:
+    volumes:
+      - <intake-catalogs-directory>:/home/python/intake-catalogs
+      - <input-directory>:/home/python/input
+      - <output-directory>:/home/python/output
+    environment:
+      - NC2ZARR_INPUT=/home/python/input
+      - NC2ZARR_OUTPUT=/home/python/output
+      - NC2ZARR_INTAKE_CATALOGS=/home/python/intake-catalogs
+      - NC2ZARR_PROD=True
+      - NC2ZARR_PUBLIC_URL=http://<domain>:<nginx-port>/
+    deploy:
+      replicas: <worker-count> # 2
+      resources:
+        limits:
+          cpus: <worker-cpu-limit> # '0.25'
+          memory: <worker-ram-limit> # 512M
+    privileged: true
+
+  nginx:
+    image: nginx
+    ports:
+      - "<nginx-port>:<nginx-port>"
+    volumes:
+      - <parent-directory-for-input-output-and-intake-catalogs>:/usr/share/nginx/html
+    environment:
+      - NGINX_HOST=<domain>
+      - NGINX_PORT=<nginx-port>
+
+  postgres:
+    volumes:
+      - <postgres-directory>:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_PASSWORD=<postgres-password>
+
+
+```
+
+Now use Docker Compose to start the application:
+
+```commandline
+docker compose -f docker-compose.yaml -f docker-compose.prod.yaml up -d
 ```
 
 ## Contributing
@@ -48,7 +125,7 @@ Here are the steps necessary to run them successfully.
 
 ### Other services
 
-For the backend to work correctly other services from the `docker-compose.yaml` like Postgres are needed. You can start them with:
+For the backend other services from the `docker-compose.yaml` like Postgres are needed. You can start them with:
 
 ```commandline
 docker-compose up -d
