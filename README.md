@@ -40,3 +40,61 @@ django:
     - /your/input/path:/input
     - /your/output/path:/output
 ```
+
+## Contributing
+
+When contributing to the project it is helpful to run the Django backend and the Angular frontend in an IDE.
+Here are the steps necessary to run them successfully.
+
+### Other services
+
+For the backend to work correctly other services from the `docker-compose.yaml` like Postgres are needed. You can start them with:
+
+```commandline
+docker-compose up -d
+```
+
+### Django backend
+
+Set the following environment variables to configure your local environment:
+
+```commandline
+NC2ZARR_INPUT               = <absolute_path_to_input_folder> (e.g. Q:\nc2zarr\input on Windows)
+NC2ZARR_OUTPUT              = <absolute_path_to_output_folder> (e.g. Q:\nc2zarr\output on Windows)
+NC2ZARR_INTAKE_CATALOGS     = <absolute_path_to_intake_catalogs_folder> (e.g. Q:\nc2zarr\intake-catalogs on Windows)
+NC2ZARR_POSTGRES_HOST       = localhost
+NC2ZARR_POSTGRES_PASSWORD   = development
+NC2ZARR_URL                 = localhost
+PYTHONUNBUFFERED            = 1
+```
+
+Use the environment variables for all Django commands. 
+
+To generate database migrations run:
+
+```commandline
+python manage.py makemigrations db
+```
+
+To apply database migrations run:
+
+```commandline
+python manage.py migrate
+```
+
+To start the server run: 
+
+```commandline
+python manage.py runserver 127.0.0.1:8001
+```
+
+### Angular frontend
+
+For the frontend you need to have `npm` installed.
+
+Then run:
+
+```commandline
+npm install
+npm run start
+```

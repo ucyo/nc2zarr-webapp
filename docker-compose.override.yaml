@@ -63,9 +63,10 @@ services:
   angular-frontend:
     ports:
       - "80:80"
-    environment:
-      - NC2ZARR_WEB_INTERFACE_URL=http://localhost
-      - NC2ZARR_CONTENT_URL=http://localhost:8080/intake-catalogs
+    build:
+      args:
+        - NC2ZARR_BACKEND_URL=http://localhost:8000
+        - NC2ZARR_CONTENT_URL=http://localhost:8080/intake-catalogs
 
   postgres:
     ports:
