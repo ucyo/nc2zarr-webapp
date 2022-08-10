@@ -33,6 +33,13 @@ intake.gui
 intake.gui.item().read_chunked()
 ```
 
+Or without the GUI:
+
+```python
+catalog = intake.open_catalog('http://<content-url>/<catalog-name>.yaml')
+catalog['<data-source-name>'].read_chunked()
+```
+
 
 ## Getting Started
 
@@ -91,7 +98,6 @@ services:
         limits:
           cpus: <worker-cpu-limit> # '0.25'
           memory: <worker-ram-limit> # 512M
-    privileged: true
 
   nginx:
     image: nginx
