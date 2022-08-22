@@ -228,4 +228,3 @@ input
 output
 intake-catalogs
 postgres
-docker-compose.prod.yaml
