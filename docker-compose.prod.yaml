@@ -12,17 +12,17 @@ services:
 
   redis:
     volumes:
-      - <redis-directory>:/data
+      - redis-storage:/data
     expose:
       - "6379"
 
   django:
     ports:
-      - "<backend-port>:<backend-port>"
+      - "${DJANGO_BACKEND_PORT}:${DJANGO_BACKEND_PORT}"
     volumes:
-      - <input-directory>:/root/public/input
-      - <output-directory>:/root/public/output
-      - <intake-catalogs-directory>:/root/public/intake-catalogs
+      - "${INPUT_DIR}:/root/public/input"
+      - "${OUTPUT_DIR}:/root/public/output"
+      - "${INTAKE_DIR}:/root/public/intake-catalogs"
     environment:
       - NC2ZARR_INPUT=/root/public/input
       - NC2ZARR_OUTPUT=/root/public/output
@@ -64,3 +64,7 @@ services:
       - <postgres-directory>:/var/lib/postgresql/data
     environment:
       - POSTGRES_PASSWORD=<postgres-password>
+
+volumes:
+  redis-storage:
+  postgres-storage:
