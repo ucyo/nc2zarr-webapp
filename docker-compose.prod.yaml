@@ -7,8 +7,8 @@ services:
       - "80:80"
     build:
       args:
-        - NC2ZARR_BACKEND_URL=http://<domain>:<backend-port>
-        - NC2ZARR_CONTENT_URL=http://<domain>:<nginx-port>/intake-catalogs
+        - NC2ZARR_BACKEND_URL=http://${DOMAIN}:${DJANGO_BACKEND_PORT}
+        - NC2ZARR_CONTENT_URL=http://${DOMAIN}:${NGINX_PORT}/intake-catalogs
 
   redis:
     volumes:
@@ -27,43 +27,45 @@ services:
       - NC2ZARR_INPUT=/root/public/input
       - NC2ZARR_OUTPUT=/root/public/output
       - NC2ZARR_INTAKE_CATALOGS=/root/public/intake-catalogs
-      - NC2ZARR_POSTGRES_PASSWORD=<postgres-password>
+      - NC2ZARR_POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - NC2ZARR_POSTGRES_HOST=postgres
-      - NC2ZARR_URL=<domain>
+      - NC2ZARR_URL=${DOMAIN}
 
   worker:
     volumes:
-      - <intake-catalogs-directory>:/home/python/intake-catalogs
-      - <input-directory>:/home/python/input
-      - <output-directory>:/home/python/output
+      - ${INTAKE_DIR}:/home/python/intake-catalogs
+      - ${INPUT_DIR}:/home/python/input
+      - ${OUTPUT_DIR}:/home/python/output
     environment:
       - NC2ZARR_INPUT=/home/python/input
       - NC2ZARR_OUTPUT=/home/python/output
       - NC2ZARR_INTAKE_CATALOGS=/home/python/intake-catalogs
       - NC2ZARR_PROD=True
-      - NC2ZARR_PUBLIC_URL=http://<domain>:<nginx-port>/
+      - NC2ZARR_PUBLIC_URL=http://${DOMAIN}:${NGINX_PORT}/
     deploy:
-      replicas: <worker-count> # 2
+      replicas: 2
       resources:
         limits:
-          cpus: <worker-cpu-limit> # '0.25'
-          memory: <worker-ram-limit> # 512M
+          cpus: ${WORKER_CPU_LIMIT} # '0.25'
+          memory: ${WORKER_RAM_LIMIT} # 512M
 
   nginx:
     image: nginx
     ports:
-      - "<nginx-port>:<nginx-port>"
+      - "${NGINX_PORT}:${NGINX_PORT}"
     volumes:
-      - <parent-directory-for-input-output-and-intake-catalogs>:/usr/share/nginx/html
+      - "${INPUT_DIR}:/usr/share/nginx/html/input"
+      - "${OUTPUT_DIR}:/usr/share/nginx/html/output"
+      - "${INTAKE_DIR}:/usr/share/nginx/html/intake-catalogs"
     environment:
-      - NGINX_HOST=<domain>
-      - NGINX_PORT=<nginx-port>
+      - NGINX_HOST=${DOMAIN}
+      - NGINX_PORT=${NGINX_PORT}
 
   postgres:
     volumes:
-      - <postgres-directory>:/var/lib/postgresql/data
+      - postgres-storage:/var/lib/postgresql/data
     environment:
-      - POSTGRES_PASSWORD=<postgres-password>
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
 
 volumes:
   redis-storage:
