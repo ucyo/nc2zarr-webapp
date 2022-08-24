@@ -54,9 +54,7 @@ services:
     ports:
       - "${NGINX_PORT}:${NGINX_PORT}"
     volumes:
-      - "${INPUT_DIR}:/usr/share/nginx/html/input"
-      - "${OUTPUT_DIR}:/usr/share/nginx/html/output"
-      - "${INTAKE_DIR}:/usr/share/nginx/html/intake-catalogs"
+      - "${MOUNT_DIR}:/usr/share/nginx/html"
     environment:
       - NGINX_HOST=${DOMAIN}
       - NGINX_PORT=${NGINX_PORT}
