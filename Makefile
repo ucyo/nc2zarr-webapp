@@ -1,8 +1,14 @@
-build:
+build-prod:
 	@echo "===================================================================="
 	@echo "Building services"
 	@echo "===================================================================="
-	@docker compose build 
+	@docker compose -f docker-compose.yaml -f docker-compose.prod.yaml build
+
+build-dev:
+	@echo "===================================================================="
+	@echo "Building services"
+	@echo "===================================================================="
+	@docker compose build
 up:
 	@echo "===================================================================="
 	@echo "Run $(MODE) system"
@@ -23,7 +29,7 @@ deploy:
 
 down: clean
 
-.PHONY: build clean deploy down up
+.PHONY: build-dev build-prod clean deploy down up
 
 # check:
 # 	@while inotifywait -q -e modify -e create -e delete -e move --recursive /home/python/ ; do \
